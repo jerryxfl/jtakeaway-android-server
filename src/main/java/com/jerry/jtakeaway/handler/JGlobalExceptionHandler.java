@@ -4,146 +4,155 @@ import com.jerry.jtakeaway.exception.JException;
 import com.jerry.jtakeaway.utils.RUtils;
 import com.jerry.jtakeaway.utils.bean.Renum;
 import com.jerry.jtakeaway.utils.bean.Result;
-import io.swagger.annotations.ApiResponse;
-import org.springframework.beans.ConversionNotSupportedException;
-import org.springframework.beans.TypeMismatchException;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.http.converter.HttpMessageNotWritableException;
-import org.springframework.web.HttpMediaTypeNotAcceptableException;
+import org.springframework.validation.BindException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
+import javax.xml.bind.ValidationException;
 
-@ControllerAdvice
+
+@RestControllerAdvice
 public class JGlobalExceptionHandler {
 
     @ExceptionHandler(JException.class)
-    @ResponseBody
     public Result handleException(JException e){
-        return RUtils.Err(Integer.valueOf(e.getErrorCode()),e.getErrorMsg());
+        e.printStackTrace();
+        return RUtils.Err(e.getErrorCode(),e.getErrorMsg());
+    }
+
+    /**
+     * 处理空指针的异常
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(value =NullPointerException.class)
+    public Result exceptionHandler(NullPointerException e){
+        e.printStackTrace();
+        return RUtils.Err(Renum.UNKNOWN_ERROR.getCode(),Renum.UNKNOWN_ERROR.getMsg());
     }
 
 
-    @ExceptionHandler(RuntimeException.class)
-    @ResponseBody
-    public Result runtimeExceptionHandler(RuntimeException ex){
-        return RUtils.Err(-1,"服务器内部错误");
-    }
-
-    //空指针异常
-    @ExceptionHandler(NullPointerException.class)
-    @ResponseBody
-    public Result nullPointerExceptionHandler(NullPointerException ex) {
-        return RUtils.Err(-1,"服务器内部错误");
-    }
-
-    //类型转换异常
-    @ExceptionHandler(ClassCastException.class)
-    @ResponseBody
-    public Result classCastExceptionHandler(ClassCastException ex) {
-        return RUtils.Err(-1,"服务器内部错误");
-    }
-
-    //IO异常
-    @ExceptionHandler(IOException.class)
-    @ResponseBody
-    public Result iOExceptionHandler(IOException ex) {
-        return RUtils.Err(-1,"服务器内部错误");
-    }
-
-    //未知方法异常
-    @ExceptionHandler(NoSuchMethodException.class)
-    @ResponseBody
-    public Result noSuchMethodExceptionHandler(NoSuchMethodException ex) {
-        return RUtils.Err(-1,"服务器内部错误");
-
-    }
-
-    //数组越界异常
-    @ExceptionHandler(IndexOutOfBoundsException.class)
-    @ResponseBody
-    public Result indexOutOfBoundsExceptionHandler(IndexOutOfBoundsException ex) {
-        return RUtils.Err(-1,"服务器内部错误");
-    }
-
-    //400错误
-    @ExceptionHandler({HttpMessageNotReadableException.class})
-    @ResponseBody
-    public Result requestNotReadable(HttpMessageNotReadableException ex) {
-        return RUtils.Err(-1,"页面未找到");
-
-    }
-
-    //400错误
-    @ExceptionHandler({TypeMismatchException.class})
-    @ResponseBody
-    public Result requestTypeMismatch(TypeMismatchException ex) {
-        return RUtils.Err(-1,"页面未找到");
-
-    }
-
-    //404错误
-    @ExceptionHandler({NoHandlerFoundException.class})
-    @ResponseBody
-    public Result noHandlerFoundException(NoHandlerFoundException ex) {
-        return RUtils.Err(-1,"页面丢失");
-    }
-
-    //400错误
-    @ExceptionHandler({MissingServletRequestParameterException.class})
-    @ResponseBody
-    public Result requestMissingServletRequest(MissingServletRequestParameterException ex) {
-        return RUtils.Err(-1,"页面丢失");
-    }
-
-    //405错误
-    @ExceptionHandler({HttpRequestMethodNotSupportedException.class})
-    @ResponseBody
-    public Result request405(HttpRequestMethodNotSupportedException ex) {
-        return RUtils.Err(-1,"页面丢失");
-    }
-
-    //406错误
-    @ExceptionHandler({HttpMediaTypeNotAcceptableException.class})
-    @ResponseBody
-    public Result request406(HttpMediaTypeNotAcceptableException ex) {
-        return RUtils.Err(-1,"页面丢失");
-    }
-
-    //500错误
-    @ExceptionHandler({ConversionNotSupportedException.class, HttpMessageNotWritableException.class})
-    @ResponseBody
-    public Result server500(RuntimeException ex) {
-        return RUtils.Err(-1,"页面丢失");
-    }
-
-    //栈溢出
-    @ExceptionHandler({StackOverflowError.class})
-    @ResponseBody
-    public Result requestStackOverflow(StackOverflowError ex) {
-        return RUtils.Err(-1,"服务器内部错误");
-    }
-
-    //除数不能为0
-    @ExceptionHandler({ArithmeticException.class})
-    @ResponseBody
-    public Result arithmeticException(ArithmeticException ex) {
-        return RUtils.Err(-1,"服务器内部错误");
+    /**
+     * 处理其他异常
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(value =Exception.class)
+    public Result exceptionHandler( Exception e){
+        e.printStackTrace();
+        return RUtils.Err(Renum.UNKNOWN_ERROR.getCode(),Renum.UNKNOWN_ERROR.getMsg());
     }
 
 
-    //其他错误
-    @ExceptionHandler({Exception.class})
-    @ResponseBody
-    public Result exception(Exception ex) {
-        return RUtils.Err(-1,"服务器内部错误");
+
+
+    /**
+     * 400 - Bad Request
+     */
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public Result handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
+        e.printStackTrace();
+        return RUtils.Err(-101,"缺少请求参数");
     }
+    /**
+     * 400 - Bad Request
+     */
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public Result handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+        e.printStackTrace();
+        return RUtils.Err(-101,"参数解析失败");
+    }
+
+    /**
+     * 400 - Bad Request
+     */
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Result handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        e.printStackTrace();
+        return RUtils.Err(-101,"参数验证失败");
+    }
+
+    /**
+     * 400 - Bad Request
+     */
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(BindException.class)
+    public Result handleBindException(BindException e) {
+        e.printStackTrace();
+        return RUtils.Err(-101,"参数绑定失败");
+    }
+
+
+    /**
+     * 400 - Bad Request
+     */
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(ConstraintViolationException.class)
+    public Result handleServiceException(ConstraintViolationException e) {
+        e.printStackTrace();
+
+        return RUtils.Err(-101,"参数验证失败");
+    }
+
+    /**
+     * 400 - Bad Request
+     */
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(ValidationException.class)
+    public Result handleValidationException(ValidationException e) {
+        e.printStackTrace();
+
+        return RUtils.Err(-101,"参数验证失败");
+
+    }
+
+    /**
+     * 404 - Not Found
+     */
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public Result noHandlerFoundException(NoHandlerFoundException e) {
+        e.printStackTrace();
+
+        return RUtils.Err(-101,"Not Found");
+    }
+
+
+    /**
+     * 405 - Method Not Allowed
+     */
+    @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public Result handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
+        e.printStackTrace();
+
+        return RUtils.Err(-101,"不支持当前请求方法");
+    }
+
+    /**
+     * 415 - Unsupported Media Type
+     */
+    @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public Result handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException e) {
+        e.printStackTrace();
+
+        return RUtils.Err(-101,"不支持当前媒体类型");
+    }
+
 
 }

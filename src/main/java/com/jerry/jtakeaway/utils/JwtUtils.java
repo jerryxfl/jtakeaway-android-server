@@ -25,9 +25,9 @@ public class JwtUtils {
 
 
     /**
-     * token存活时间，2小时
+     * token存活时间，48小时
      */
-    private final long liveMills = 3600 * 2 * 1000;
+    private final long liveMills = 3600 * 48 * 1000;
 
     /**
      * 获取secret
@@ -64,15 +64,7 @@ public class JwtUtils {
             Date expDate = new Date(expMills);  //失效时间
             jwtBuilder.setExpiration(expDate);
         }
-
-        String token = jwtBuilder.compact();
-
-
-        JSONObject json = JSONObject.parseObject(subject);
-        String account = json.getString("account");
-        redisUtils.set(account,token,liveMills);
-
-        return token;
+        return jwtBuilder.compact();
     }
 
     /**
@@ -98,6 +90,18 @@ public class JwtUtils {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+
+    /**
+     * token是否过期
+     * @return  true：过期
+     * lastLoginDate 最后一次登录时间
+     * issueDate token 签发时间
+     */
+    public boolean isTokenExpired(Date expiration,Date issueDate) {
+        //token签发时间小于上次登录时间 过期
+        return expiration.before(new Date());
     }
 
 

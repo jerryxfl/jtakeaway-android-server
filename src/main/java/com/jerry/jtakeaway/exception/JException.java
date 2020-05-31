@@ -7,7 +7,7 @@ public class JException extends RuntimeException {
     /**
      * 错误码
      */
-    protected String errorCode;
+    protected Integer errorCode;
     /**
      * 错误信息
      */
@@ -17,16 +17,16 @@ public class JException extends RuntimeException {
         super();
     }
 
-    public JException(String errorCode, String errorMsg) {
+    public JException(Integer errorCode, String errorMsg) {
         this.errorCode = errorCode;
         this.errorMsg = errorMsg;
     }
 
-    public String getErrorCode() {
+    public Integer getErrorCode() {
         return errorCode;
     }
 
-    public void setErrorCode(String errorCode) {
+    public void setErrorCode(Integer errorCode) {
         this.errorCode = errorCode;
     }
 
