@@ -71,6 +71,11 @@ public class GController {
         return RUtils.success();
     }
 
+    @ApiOperation("获取热门商家 传入size")
+    @GetMapping("/hot_shop")
+    public Result hot_shop(int size){
 
+
+    }
 
 }

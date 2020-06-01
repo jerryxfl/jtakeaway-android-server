@@ -16,6 +16,18 @@ public class Transaction {
     private int userid;
     private String more;
     private Integer couponid;
+    private int targetuserid;
+    private String uuid;
+
+    @Basic
+    @Column(name = "TARGETUSERID")
+    public int getTargetuserid() {
+        return targetuserid;
+    }
+
+    public void setTargetuserid(int targetuserid) {
+        this.targetuserid = targetuserid;
+    }
 
     @Id
     @Column(name = "ID")
@@ -93,5 +105,15 @@ public class Transaction {
     @Override
     public int hashCode() {
         return Objects.hash(id, paytime, paymoney, userid, more, couponid);
+    }
+
+    @Basic
+    @Column(name = "UUID")
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 }

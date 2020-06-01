@@ -12,7 +12,7 @@ public class Wallet {
     private int id;
     private BigDecimal balance;
     private String paymentpassword;
-    private Integer transactionid;
+    private String transactionid;
 
     @Id
     @Column(name = "ID")
@@ -46,11 +46,11 @@ public class Wallet {
 
     @Basic
     @Column(name = "TRANSACTIONID")
-    public Integer getTransactionid() {
+    public String getTransactionid() {
         return transactionid;
     }
 
-    public void setTransactionid(Integer transactionid) {
+    public void setTransactionid(String transactionid) {
         this.transactionid = transactionid;
     }
 

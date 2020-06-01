@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.jerry.jtakeaway.bean.*;
 import com.jerry.jtakeaway.config.websocket.Greeting;
 import com.jerry.jtakeaway.config.websocket.HelloMessage;
+import com.jerry.jtakeaway.exception.JException;
+import com.jerry.jtakeaway.requestBean.pay;
 import com.jerry.jtakeaway.requestBean.payBean;
 import com.jerry.jtakeaway.service.imp.*;
 import com.jerry.jtakeaway.utils.JwtUtils;
@@ -27,10 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Api
 @RestController
@@ -112,7 +111,7 @@ public class NController {
         }
     }
 
-    @ApiOperation("使用优惠卷支付 ")
+    @ApiOperation("使用优惠卷支付 密码需要md5加密后再传输")
     @PostMapping("/coupon_pay")
     public Result coupon_pay(HttpServletRequest request,@RequestBody payBean pay_bean){
         String jwt = request.getHeader("jwt");
@@ -128,6 +127,8 @@ public class NController {
             else{
                 Orde order = ordeServiceImp.getRepository().findById(pay_bean.getOrdeId()).orElse(null);
                 if(order==null) return RUtils.Err(Renum.NO_ORDE.getCode(),Renum.NO_ORDE.getMsg());
+                User sUser = userServiceImp.getRepository().findByUsertypeAndUserdetailsid(1,order.getSuserid());
+                if(sUser==null) throw new NullPointerException();
                 else{
                     //计算总价格
                     double money = 0.00;
@@ -160,30 +161,139 @@ public class NController {
                     if(wallet.getBalance().doubleValue()>money){
                         //钱包扣钱
                         wallet.setBalance(BigDecimal.valueOf(wallet.getBalance().doubleValue()-money));
-                        //商家进账
-
-
+                        //创建交易记录
+                        String uuid = UUID.randomUUID().toString();
                         Transaction transaction = new Transaction();
                         transaction.setCouponid(pay_bean.getCouponId());
                         transaction.setMore("使用优惠卷购买了");
                         transaction.setPaymoney(BigDecimal.valueOf(money));
                         transaction.setPaytime(new Timestamp(new Date().getTime()));
-                        transaction.setUserid(nuser.getId());
+                        transaction.setUserid(user.getId());
+                        transaction.setTargetuserid(sUser.getId());
+                        transaction.setUuid(uuid);
                         transactionServiceImp.getRepository().save(transaction);
-
-//                        transaction = transactionServiceImp.getRepository().findOne(example).orElse(null);
-
-
+                        transaction = transactionServiceImp.getRepository().findByUuid(uuid);
+                        wallet.setTransactionid(wallet.getTransactionid()+":"+transaction.getId());
                         walletServiceImp.getRepository().save(wallet);
 
+                        System.out.println("seurid:"+order.getSuserid());
+                        Suser suser = suserServiceImp.getRepository().findById(order.getSuserid()).orElse(null);
+                        if(suser==null) throw new NullPointerException();
 
+                        Wallet shopWallet = walletServiceImp.getRepository().findById(suser.getWalletid()).orElse(null);
+                        if(shopWallet==null) throw new NullPointerException();
+                        shopWallet.setBalance(BigDecimal.valueOf(shopWallet.getBalance().doubleValue()+money));
+                        Transaction shopTransaction = new Transaction();
+                        shopTransaction.setCouponid(pay_bean.getCouponId());
+                        shopTransaction.setMore("被用优惠卷购买了");
+                        shopTransaction.setPaymoney(BigDecimal.valueOf(money));
+                        shopTransaction.setPaytime(new Timestamp(new Date().getTime()));
+                        shopTransaction.setUserid(sUser.getId());
+                        shopTransaction.setTargetuserid(user.getId());
+                        String uuid2 = UUID.randomUUID().toString();
+                        shopTransaction.setUuid(uuid2);
+                        transactionServiceImp.getRepository().save(shopTransaction);
+
+                        shopTransaction = transactionServiceImp.getRepository().findByUuid(uuid2);
+                        shopWallet.setTransactionid(shopWallet.getTransactionid()+":"+shopTransaction.getId());
+                        walletServiceImp.getRepository().save(shopWallet);
                         order.setStatusid(2);
                         ordeServiceImp.getRepository().save(order);
+                        return RUtils.success(order);
                     }else return RUtils.Err(Renum.NO_MONEY.getCode(), Renum.NO_MONEY.getMsg());
                 }
             }
         }
         return RUtils.success();
     }
+
+
+    @ApiOperation("直接支付 密码需要md5加密后再传输")
+    @PostMapping("/pay")
+    public Result pay(HttpServletRequest request,@RequestBody pay pay_bean){
+        String jwt = request.getHeader("jwt");
+        Claims claims = jwtUtils.parseJWT(jwt);
+        String subject = claims.getSubject();
+        JSONObject jsonObject = JSONObject.parseObject(subject);
+        User user = userServiceImp.getRepository().findByAccount(JSONObject.toJavaObject(jsonObject, User.class).getAccount());
+        if(user.getUsertype()==0){
+            Nuser nuser = nuserServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
+            if(nuser==null)return RUtils.Err(Renum.USER_NOT_EXIST.getCode(),Renum.USER_NOT_EXIST.getMsg());
+            Wallet wallet = walletServiceImp.getRepository().findById(nuser.getWallet()).orElse(null);
+            if(wallet==null) return RUtils.Err(Renum.NO_WALLTE.getCode(),Renum.NO_WALLTE.getMsg());
+            else{
+                Orde order = ordeServiceImp.getRepository().findById(pay_bean.getOrdeId()).orElse(null);
+                if(order==null) return RUtils.Err(Renum.NO_ORDE.getCode(),Renum.NO_ORDE.getMsg());
+                User sUser = userServiceImp.getRepository().findByUsertypeAndUserdetailsid(1,order.getSuserid());
+                if(sUser==null) throw new NullPointerException();
+                else{
+                    //计算总价格
+                    double money = 0.00;
+                    JSONObject json = (JSONObject) JSONObject.parse(order.getMenus());
+                    Map<String, Object> map =json;
+                    for (Map.Entry<String, Object> entry : map.entrySet()) {
+                        System.out.println(entry.getKey()+"="+entry.getValue());
+                        int key = Integer.parseInt(entry.getKey());
+                        int value =  (int)entry.getValue();
+
+                        Menus menus = menusServiceImp.getRepository().findById(key).orElse(null);
+                        assert menus != null;
+                        if(menus.getFoodlowprice()!=null){
+                            money = money + menus.getFoodlowprice().doubleValue()*value;
+                        }else{
+                            money = money + menus.getFoodprice().doubleValue()*value;
+                        }
+                    }
+                    System.out.println("总价:"+money);
+                    if(!pay_bean.getPayPassword().equals(wallet.getPaymentpassword())) return RUtils.Err(Renum.PAYPAS_FAIL.getCode(),Renum.PAYPAS_FAIL.getMsg());
+                    if(wallet.getBalance().doubleValue()>money){
+                        //钱包扣钱
+                        wallet.setBalance(BigDecimal.valueOf(wallet.getBalance().doubleValue()-money));
+                        //创建交易记录
+                        String uuid = UUID.randomUUID().toString();
+                        Transaction transaction = new Transaction();
+                        transaction.setMore("直接购买了");
+                        transaction.setPaymoney(BigDecimal.valueOf(money));
+                        transaction.setPaytime(new Timestamp(new Date().getTime()));
+                        transaction.setUserid(user.getId());
+                        transaction.setTargetuserid(sUser.getId());
+                        transaction.setUuid(uuid);
+                        transactionServiceImp.getRepository().save(transaction);
+                        transaction = transactionServiceImp.getRepository().findByUuid(uuid);
+                        wallet.setTransactionid(wallet.getTransactionid()+":"+transaction.getId());
+                        walletServiceImp.getRepository().save(wallet);
+
+                        System.out.println("seurid:"+order.getSuserid());
+                        Suser suser = suserServiceImp.getRepository().findById(order.getSuserid()).orElse(null);
+                        if(suser==null) throw new NullPointerException();
+
+                        Wallet shopWallet = walletServiceImp.getRepository().findById(suser.getWalletid()).orElse(null);
+                        if(shopWallet==null) throw new NullPointerException();
+                        shopWallet.setBalance(BigDecimal.valueOf(shopWallet.getBalance().doubleValue()+money));
+                        Transaction shopTransaction = new Transaction();
+                        shopTransaction.setMore("直接购买了");
+                        shopTransaction.setPaymoney(BigDecimal.valueOf(money));
+                        shopTransaction.setPaytime(new Timestamp(new Date().getTime()));
+                        shopTransaction.setUserid(sUser.getId());
+                        shopTransaction.setTargetuserid(user.getId());
+                        String uuid2 = UUID.randomUUID().toString();
+                        shopTransaction.setUuid(uuid2);
+                        transactionServiceImp.getRepository().save(shopTransaction);
+
+                        shopTransaction = transactionServiceImp.getRepository().findByUuid(uuid2);
+                        shopWallet.setTransactionid(shopWallet.getTransactionid()+":"+shopTransaction.getId());
+                        walletServiceImp.getRepository().save(shopWallet);
+                        order.setStatusid(2);
+                        ordeServiceImp.getRepository().save(order);
+                        return RUtils.success(order);
+                    }else return RUtils.Err(Renum.NO_MONEY.getCode(), Renum.NO_MONEY.getMsg());
+                }
+            }
+        }
+        return RUtils.success();
+    }
+
+
+
 
 }
