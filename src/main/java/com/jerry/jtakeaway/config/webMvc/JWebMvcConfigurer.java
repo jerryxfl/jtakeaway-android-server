@@ -9,6 +9,8 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import javax.annotation.Resource;
+
 @Configuration
 public class JWebMvcConfigurer implements WebMvcConfigurer {
     /**
@@ -25,6 +27,17 @@ public class JWebMvcConfigurer implements WebMvcConfigurer {
                 .addResourceLocations("classpath:/META-INF/resources/webjars/");
     }
 
+    @Resource
+    JNInterceptor jnInterceptor;
+
+    @Resource
+    JHInterceptor jhInterceptor;
+
+    @Resource
+    JXInterceptor jxInterceptor;
+
+    @Resource
+    JSInterceptor jsInterceptor;
 
     /**
      * 配置拦截路径
@@ -33,22 +46,22 @@ public class JWebMvcConfigurer implements WebMvcConfigurer {
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new JNInterceptor())
+        registry.addInterceptor(jnInterceptor)
                 //添加需要验证登录用户操作权限的请求
                 .addPathPatterns("/N/**");
                 //排除不需要验证登录用户操作权限的请求
         //这里可以用registry.addInterceptor添加多个拦截器实例，后面加上匹配模式
-        registry.addInterceptor(new JSInterceptor())
+        registry.addInterceptor(jsInterceptor)
                 //添加需要验证登录用户操作权限的请求
                 .addPathPatterns("/S/**");
                 //排除不需要验证登录用户操作权限的请求
 
-        registry.addInterceptor(new JHInterceptor())
+        registry.addInterceptor(jhInterceptor)
                 //添加需要验证登录用户操作权限的请求
                 .addPathPatterns("/H/**");
                 //排除不需要验证登录用户操作权限的请求
 
-        registry.addInterceptor(new JXInterceptor())
+        registry.addInterceptor(jxInterceptor)
                 //添加需要验证登录用户操作权限的请求
                 .addPathPatterns("/X/**");
                 //排除不需要验证登录用户操作权限的请求

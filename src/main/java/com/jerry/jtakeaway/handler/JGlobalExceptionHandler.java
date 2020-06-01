@@ -5,11 +5,11 @@ import com.jerry.jtakeaway.utils.RUtils;
 import com.jerry.jtakeaway.utils.bean.Renum;
 import com.jerry.jtakeaway.utils.bean.Result;
 import org.hibernate.exception.ConstraintViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -28,6 +28,7 @@ public class JGlobalExceptionHandler {
     @ExceptionHandler(JException.class)
     public Result handleException(JException e){
         e.printStackTrace();
+        
         return RUtils.Err(e.getErrorCode(),e.getErrorMsg());
     }
 
@@ -39,6 +40,7 @@ public class JGlobalExceptionHandler {
     @ExceptionHandler(value =NullPointerException.class)
     public Result exceptionHandler(NullPointerException e){
         e.printStackTrace();
+        
         return RUtils.Err(Renum.UNKNOWN_ERROR.getCode(),Renum.UNKNOWN_ERROR.getMsg());
     }
 
@@ -51,6 +53,7 @@ public class JGlobalExceptionHandler {
     @ExceptionHandler(value =Exception.class)
     public Result exceptionHandler( Exception e){
         e.printStackTrace();
+        
         return RUtils.Err(Renum.UNKNOWN_ERROR.getCode(),Renum.UNKNOWN_ERROR.getMsg());
     }
 
@@ -64,6 +67,7 @@ public class JGlobalExceptionHandler {
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public Result handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
         e.printStackTrace();
+        
         return RUtils.Err(-101,"缺少请求参数");
     }
     /**
@@ -73,6 +77,7 @@ public class JGlobalExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public Result handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
         e.printStackTrace();
+        
         return RUtils.Err(-101,"参数解析失败");
     }
 
@@ -83,6 +88,7 @@ public class JGlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Result handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         e.printStackTrace();
+        
         return RUtils.Err(-101,"参数验证失败");
     }
 
@@ -93,6 +99,7 @@ public class JGlobalExceptionHandler {
     @ExceptionHandler(BindException.class)
     public Result handleBindException(BindException e) {
         e.printStackTrace();
+        
         return RUtils.Err(-101,"参数绑定失败");
     }
 
@@ -104,7 +111,7 @@ public class JGlobalExceptionHandler {
     @ExceptionHandler(ConstraintViolationException.class)
     public Result handleServiceException(ConstraintViolationException e) {
         e.printStackTrace();
-
+        
         return RUtils.Err(-101,"参数验证失败");
     }
 
@@ -115,7 +122,7 @@ public class JGlobalExceptionHandler {
     @ExceptionHandler(ValidationException.class)
     public Result handleValidationException(ValidationException e) {
         e.printStackTrace();
-
+        
         return RUtils.Err(-101,"参数验证失败");
 
     }
@@ -127,7 +134,7 @@ public class JGlobalExceptionHandler {
     @ExceptionHandler(NoHandlerFoundException.class)
     public Result noHandlerFoundException(NoHandlerFoundException e) {
         e.printStackTrace();
-
+        
         return RUtils.Err(-101,"Not Found");
     }
 
@@ -139,7 +146,7 @@ public class JGlobalExceptionHandler {
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public Result handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
         e.printStackTrace();
-
+        
         return RUtils.Err(-101,"不支持当前请求方法");
     }
 
@@ -150,7 +157,7 @@ public class JGlobalExceptionHandler {
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
     public Result handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException e) {
         e.printStackTrace();
-
+        
         return RUtils.Err(-101,"不支持当前媒体类型");
     }
 

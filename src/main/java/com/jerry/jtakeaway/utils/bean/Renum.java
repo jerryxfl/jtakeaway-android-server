@@ -18,6 +18,12 @@ public enum Renum {
     JWT_FAIL(5,"凭证失效"),
     NO_LOGIN(6,"未登录"),
     PREMS_FAIL(7,"权限不足"),
+    NO_WALLTE(8,"你还未开通钱包功能"),
+    NO_MONEY(9,"余额不足"),
+    NO_ORDE(10,"订单不存在"),
+    NO_CONPON(11,"优惠卷不存在"),
+    CONPON_FAIL(12,"优惠卷已过期"),
+    PAYPAS_FAIL(13,"支付密码错误"),
     ;
     private Integer code;
     private String msg;

@@ -28,7 +28,7 @@ public class loginController {
     @Resource
     private RedisUtils redisUtils;
 
-    @Autowired
+    @Resource
     private SimpMessagingTemplate messagingTemplate;
 
     @Resource
@@ -40,79 +40,101 @@ public class loginController {
     @ApiOperation("用户认证操作")
     @PostMapping("/jwtLogin")
     public Result jwtLogin(@RequestBody User user, HttpServletRequest request) {
-        //获得token
-        String token = request.getHeader("token");
-        if (token == null || "".equals(token)) {
-            //用户未登录 且未携带任何token
-            return login(user);
-        } else {
+        String jwt = request.getHeader("jwt");
+        if(jwt!=null&&!"".equals(jwt)){
+            //jwt不为空
+            //验证jwt是否过期
             Claims claims;
-            try{
-                 claims = jwtUtils.parseJWT(token);
-            }catch (ExpiredJwtException e) {
-                System.out.println("token过期");
-                return login(user);
-            }
-            String subject = claims.getSubject();
-            JSONObject jsonObject = JSONObject.parseObject(subject);
-            User mUser = JSONObject.toJavaObject(jsonObject, User.class);
-            if (redisUtils.get(mUser.getAccount()) != null) {
-                if(redisUtils.get(user.getAccount()).equals(token)){
-                    return RUtils.success();
+            try {
+                claims = jwtUtils.parseJWT(jwt);
+                //验证redis数据库中是否有该用户
+                if(redisUtils.get(user.getAccount())!=null){
+                    //用户不为空 表示用户还在登录  判断token是否相等
+                    if(jwt.equals(redisUtils.get(user.getAccount()))){
+                        //是本人登录
+                        return RUtils.Err(Renum.SUCCESS.getCode(),Renum.SUCCESS.getMsg());
+                    }else{
+                        //其他人登录
+                        /**
+                         *
+                         * 这里可以用websocket通知已登录用户有异地登录请求
+                         *
+                         */
+
+
+                        return RUtils.Err(Renum.USER_IS_EXISTS.getCode(),Renum.USER_IS_EXISTS.getMsg());
+                    }
                 }else{
-                    return login(user);
+                    //用户不存在于数据库 表示用户从未登录 jwt也就对此用户无效
+                   return login(user);
                 }
-            } else {
+            }catch (ExpiredJwtException e) {
+                System.out.println("jwt已过期");
+                //过期删除原来数据库中的jwt 重新登录
+                if(redisUtils.get(user.getAccount())!=null)redisUtils.delete(user.getAccount());
                 return login(user);
             }
+        }else{
+            //jwt为空
+            return login(user);
         }
     }
 
 
     private Result login(User user) {
-        //先判断要登录用户是否已经登录
-        if (redisUtils.get(user.getAccount()) == null) {
-            //当前用户并未登录
-            if (userServiceImp.getRepository().findByAccount(user.getAccount()) == null) {
-                return RUtils.Err(Renum.USER_NOT_EXIST.getCode(), Renum.USER_NOT_EXIST.getMsg());
-            } else if (userServiceImp.getRepository().findByAccountAndPassword(user.getAccount(), user.getPassword()) == null) {
-                return RUtils.Err(Renum.PWD_ERROE.getCode(), Renum.PWD_ERROE.getMsg());
-            } else {
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put("account", user.getAccount());
-                jsonObject.put("password", user.getPassword());
-                String resultToken = jwtUtils.createJWT(jsonObject.toJSONString());
-                System.out.println(user.getAccount() + "-----:" + resultToken);
-                //数据存库
-                redisUtils.set(user.getAccount(), resultToken);
-                JSONObject json  = new JSONObject();
-                json.put("token", resultToken);
-                json.put("user", userServiceImp.getRepository().findByAccount(user.getAccount()));
-                return RUtils.success(json.toJSONString());
-            }
-        } else {
-            //当前用户已登录
-            return RUtils.Err(Renum.USER_IS_EXISTS.getCode(), Renum.USER_IS_EXISTS.getMsg());
+        //判断用户是否已登录
+        if(redisUtils.get(user.getAccount())!=null){
+            //用户已登录
+            return  RUtils.Err(Renum.USER_IS_EXISTS.getCode(),Renum.USER_IS_EXISTS.getMsg());
+        }else{
+            //生成jwt
+            JSONObject json = new JSONObject();
+            json.put("account",user.getAccount());
+            json.put("password",user.getPassword());
+            String jwt = jwtUtils.createJWT(json.toJSONString());
+            //存库
+            redisUtils.set(user.getAccount(), jwt);
+            User resultUser = userServiceImp.getRepository().findByAccount(user.getAccount());
+            resultUser.setPassword("");
+            JSONObject resultJson = new JSONObject();
+            resultJson.put("jwt",jwt);
+            resultJson.put("user",resultUser);
+            System.out.println("jwt --------:"+jwt);
+            return RUtils.success(resultJson.toJSONString());
         }
+
     }
 
 
     @ApiOperation("退出登录")
     @GetMapping("/jwtLogout")
     public Result jwtLogout(HttpServletRequest request) {
-        String token = request.getHeader("token");
-        Claims claims = jwtUtils.parseJWT(token);
-        String subject = claims.getSubject();
-        JSONObject jsonObject = JSONObject.parseObject(subject);
-        User user = JSONObject.toJavaObject(jsonObject, User.class);
-        if (redisUtils.get(user.getAccount()) != null) {
-            //凭证有效  删除数据库凭证
-            redisUtils.delete(user.getAccount());
-            System.out.println("成功退出登录");
-        } else {
-            return RUtils.Err(Renum.JWT_FAIL.getCode(), Renum.JWT_FAIL.getMsg());
+        String jwt = request.getHeader("jwt");
+        if(jwt != null && !"".equals(jwt)){
+
+            Claims claims;
+            try{
+                claims = jwtUtils.parseJWT(jwt);
+                String subject = claims.getSubject();
+                JSONObject json = JSONObject.parseObject(subject);
+                User user = JSONObject.toJavaObject(json,User.class);
+                if(redisUtils.get(user.getAccount())!=null&&redisUtils.get(user.getAccount()).equals(jwt)){
+                    redisUtils.delete(user.getAccount());
+                    System.out.println("退出登录成功");
+                    return RUtils.success();
+                }
+            }catch (ExpiredJwtException e) {
+                String subject = e.getClaims().getSubject();
+                JSONObject json = JSONObject.parseObject(subject);
+                User user = JSONObject.toJavaObject(json,User.class);
+                if(redisUtils.get(user.getAccount())!=null&&redisUtils.get(user.getAccount()).equals(jwt)){
+                    redisUtils.delete(user.getAccount());
+                    System.out.println("退出登录成功");
+                    return RUtils.success();
+                }
+            }
         }
-        return RUtils.success();
+        return RUtils.Err(Renum.NO_LOGIN.getCode(),Renum.NO_LOGIN.getMsg());
     }
 
 }
