@@ -1,11 +1,8 @@
 package com.jerry.jtakeaway.controller;
 
 
-import com.jerry.jtakeaway.bean.Apply;
-import com.jerry.jtakeaway.bean.Suser;
-import com.jerry.jtakeaway.service.imp.ApplyServiceImp;
-import com.jerry.jtakeaway.service.imp.SuserServiceImp;
-import com.jerry.jtakeaway.service.imp.UserServiceImp;
+import com.jerry.jtakeaway.bean.*;
+import com.jerry.jtakeaway.service.imp.*;
 import com.jerry.jtakeaway.utils.RUtils;
 import com.jerry.jtakeaway.utils.bean.Result;
 import io.swagger.annotations.Api;
@@ -17,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Api(description = "公共接口")
 @RestController
@@ -31,6 +27,18 @@ public class GController {
 
     @Resource
     ApplyServiceImp applyServiceImp;
+
+    @Resource
+    WalletServiceImp walletRepository;
+
+    @Resource
+    TransactionServiceImp transactionServiceImp;
+
+    @Resource
+    SlideServiceImp slideServiceImp;
+
+    @Resource
+    BroadcastServiceImp broadcastServiceImp;
 
     @ApiOperation("获取商家列表 传入大小")
     @GetMapping("/shops")
@@ -71,11 +79,51 @@ public class GController {
         return RUtils.success();
     }
 
-    @ApiOperation("获取热门商家 传入size")
+    @ApiOperation("获取热门商家")
     @GetMapping("/hot_shop")
-    public Result hot_shop(int size){
-
-
+    public Result hot_shop(){
+            List<Suser> susers = new ArrayList<>();
+            List<Suser> rSusers = new ArrayList<>();
+            susers = suserServiceImp.getRepository().findAll();
+            for(Suser s:susers){
+                Wallet wallet = walletRepository.getRepository().findById(s.getWalletid()).orElse(null);
+                if(wallet != null){
+                    String[] deals = wallet.getTransactionid().split(":");
+                    if(deals.length>=3){
+                        s.setWalletid(null);
+                        s.setSlideid(null);
+                        s.setShopaddress(null);
+                        s.setIdcard("");
+                        s.setShoplicense("");
+                        rSusers.add(s);
+                    }
+                }
+            }
+            return RUtils.success(rSusers);
     }
 
+    @ApiOperation("获取顶部轮播图")
+    @GetMapping("/top_slides")
+    public Result top_slides(){
+        List<Slide> slides = new ArrayList<Slide>();
+        List<Slide> rSlides = new ArrayList<Slide>();
+        slides = slideServiceImp.getRepository().findAll();
+        for(Slide slide : slides){
+            User user = userServiceImp.getRepository().findById(slide.getUserid());
+            if(user != null){
+                if(user.getUsertype()==3){
+                    rSlides.add(slide);
+                }
+            }
+        }
+        return RUtils.success(rSlides);
+    }
+
+    @ApiOperation("获得广播")
+    @GetMapping("/broadcasts")
+    public Result broadcasts(){
+        List<Broadcasts> broadcasts = new ArrayList<>();
+        broadcasts = broadcastServiceImp.getRepository().findAll();
+        return RUtils.success(broadcasts);
+    }
 }

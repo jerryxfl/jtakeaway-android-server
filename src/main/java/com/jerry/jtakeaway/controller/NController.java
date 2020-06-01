@@ -65,6 +65,10 @@ public class NController {
 
     @Resource
     OrdeServiceImp ordeServiceImp;
+
+    @Resource
+    UserConponServiceImp userConponServiceImp;
+
     @ApiOperation("生成订单 ")
     @GetMapping("/order")
     public Result order(HttpServletRequest request,int sId, int mId, int mSize){
@@ -147,15 +151,24 @@ public class NController {
                             money = money + menus.getFoodprice().doubleValue()*value;
                         }
                     }
+                    System.out.println("seurid:"+order.getSuserid());
+                    Suser suser = suserServiceImp.getRepository().findById(order.getSuserid()).orElse(null);
+                    if(suser==null) throw new NullPointerException();
+
                     //计算优惠卷使用后价格
                     Coupon coupon = conponServiceImp.getRepository().findById(pay_bean.getCouponId()).orElse(null);
+                    //判断用户是否有此优惠卷
+                    Userconpon userconpon = userConponServiceImp.getRepository().findByConponidAndNuserid(coupon.getId(),nuser.getId());
+                    if(userconpon==null) return RUtils.Err(Renum.USER_NO_CONPON.getCode(),Renum.USER_NO_CONPON.getMsg());
                     if(coupon==null) return RUtils.Err(Renum.NO_CONPON.getCode(),Renum.NO_CONPON.getMsg());
                     //判断优惠卷是否有效
                     Date now  = new Date();
                     Date couponDate = coupon.getConponfailuretime();
                     int compareTo = now.compareTo(couponDate);
                     if(compareTo > 0)return RUtils.Err(Renum.CONPON_FAIL.getCode(),Renum.CONPON_FAIL.getMsg());
-                    money = money*coupon.getConponprice().doubleValue();
+                    if(coupon.getConpontarget()==null||coupon.getConpontarget()==suser.getId())
+                        money = money*coupon.getConponprice().doubleValue();
+                    else return RUtils.Err(Renum.CONPON_NO_ZQ.getCode(),Renum.CONPON_NO_ZQ.getMsg());
                     System.out.println("总价:"+money);
                     if(!pay_bean.getPayPassword().equals(wallet.getPaymentpassword())) return RUtils.Err(Renum.PAYPAS_FAIL.getCode(),Renum.PAYPAS_FAIL.getMsg());
                     if(wallet.getBalance().doubleValue()>money){
@@ -175,10 +188,6 @@ public class NController {
                         transaction = transactionServiceImp.getRepository().findByUuid(uuid);
                         wallet.setTransactionid(wallet.getTransactionid()+":"+transaction.getId());
                         walletServiceImp.getRepository().save(wallet);
-
-                        System.out.println("seurid:"+order.getSuserid());
-                        Suser suser = suserServiceImp.getRepository().findById(order.getSuserid()).orElse(null);
-                        if(suser==null) throw new NullPointerException();
 
                         Wallet shopWallet = walletServiceImp.getRepository().findById(suser.getWalletid()).orElse(null);
                         if(shopWallet==null) throw new NullPointerException();
@@ -294,6 +303,62 @@ public class NController {
     }
 
 
+    @ApiOperation("获得可领取的优惠卷")
+    @GetMapping("/coupons")
+    public Result coupons(){
+        List<Coupon> coupons = new ArrayList<Coupon>();
+        List<Coupon> rCoupons = new ArrayList<Coupon>();
+        coupons = conponServiceImp.getRepository().findAll();
+        for(Coupon coupon : coupons){
+            //判断优惠卷是否有效
+            Date now  = new Date();
+            Date couponDate = coupon.getConponfailuretime();
+            int compareTo = now.compareTo(couponDate);
+            if(compareTo < 0)rCoupons.add(coupon);
+        }
+        return RUtils.success(rCoupons);
+    }
+
+    @ApiOperation("领取优惠卷")
+    @GetMapping("/c_coupon")
+    public Result c_coupon(HttpServletRequest request,int conponid){
+        String jwt = request.getHeader("jwt");
+        Claims claims = jwtUtils.parseJWT(jwt);
+        String subject = claims.getSubject();
+        JSONObject jsonObject = JSONObject.parseObject(subject);
+        User user = userServiceImp.getRepository().findByAccount(JSONObject.toJavaObject(jsonObject, User.class).getAccount());
+        Nuser nuser = nuserServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
+        if(nuser==null) throw new JException(Renum.UNKNOWN_ERROR.getCode(), Renum.UNKNOWN_ERROR.getMsg());
+        Coupon coupon = conponServiceImp.getRepository().findById(conponid).orElse(null);
+        if(coupon==null) throw new JException(Renum.UNKNOWN_ERROR.getCode(), Renum.UNKNOWN_ERROR.getMsg());
+        Userconpon userconpon = new Userconpon();
+        userconpon.setConponid(conponid);
+        userconpon.setNuserid(nuser.getId());
+        userconpon.setCreatetime(new Timestamp(new Date().getTime()));
+        userConponServiceImp.getRepository().save(userconpon);
+        return RUtils.success();
+    }
+
+    @ApiOperation("已领优惠卷")
+    @GetMapping("/m_coupon")
+    public Result m_coupon(HttpServletRequest request){
+        String jwt = request.getHeader("jwt");
+        Claims claims = jwtUtils.parseJWT(jwt);
+        String subject = claims.getSubject();
+        JSONObject jsonObject = JSONObject.parseObject(subject);
+        User user = userServiceImp.getRepository().findByAccount(JSONObject.toJavaObject(jsonObject, User.class).getAccount());
+        Nuser nuser = nuserServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
+        List<Userconpon> userconpons = new ArrayList<Userconpon>();
+        assert nuser != null;
+        userconpons = userConponServiceImp.getRepository().findByNuserid(nuser.getId());
+        List<Coupon> coupons = new ArrayList<Coupon>();
+        for (Userconpon userconpon : userconpons){
+            Coupon coupon = conponServiceImp.getRepository().findById(userconpon.getId()).orElse(null);
+            if(coupon!=null)coupons.add(coupon);
+        }
+
+        return RUtils.success(coupons);
+    }
 
 
 }

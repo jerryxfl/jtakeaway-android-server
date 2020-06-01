@@ -24,6 +24,8 @@ public enum Renum {
     NO_CONPON(11,"优惠卷不存在"),
     CONPON_FAIL(12,"优惠卷已过期"),
     PAYPAS_FAIL(13,"支付密码错误"),
+    CONPON_NO_ZQ(14,"优惠卷不支持此商家"),
+    USER_NO_CONPON(15,"您未领取此优惠卷"),
     ;
     private Integer code;
     private String msg;
