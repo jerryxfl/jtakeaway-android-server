@@ -1,9 +1,6 @@
 package com.jerry.jtakeaway.config.webMvc;
 
-import com.jerry.jtakeaway.interceptor.JHInterceptor;
-import com.jerry.jtakeaway.interceptor.JNInterceptor;
-import com.jerry.jtakeaway.interceptor.JSInterceptor;
-import com.jerry.jtakeaway.interceptor.JXInterceptor;
+import com.jerry.jtakeaway.interceptor.*;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -39,6 +36,8 @@ public class JWebMvcConfigurer implements WebMvcConfigurer {
     @Resource
     JSInterceptor jsInterceptor;
 
+    @Resource
+    JUInterceptor juInterceptor;
     /**
      * 配置拦截路径
      *
@@ -66,5 +65,9 @@ public class JWebMvcConfigurer implements WebMvcConfigurer {
                 .addPathPatterns("/X/**");
                 //排除不需要验证登录用户操作权限的请求
 
+        registry.addInterceptor(juInterceptor)
+                //添加需要验证登录用户操作权限的请求
+                .addPathPatterns("/U/**");
+        //排除不需要验证登录用户操作权限的请求
     }
 }

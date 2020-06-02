@@ -34,6 +34,7 @@ import java.util.*;
 @Api
 @RestController
 @RequestMapping("/N")
+@SuppressWarnings("all")
 public class NController {
 
     @Resource
@@ -68,6 +69,9 @@ public class NController {
 
     @Resource
     UserConponServiceImp userConponServiceImp;
+
+    @Resource
+    MsgServiceImp msgServiceImp;
 
     @ApiOperation("生成订单 ")
     @GetMapping("/order")
@@ -186,12 +190,16 @@ public class NController {
                         transaction.setUuid(uuid);
                         transactionServiceImp.getRepository().save(transaction);
                         transaction = transactionServiceImp.getRepository().findByUuid(uuid);
-                        wallet.setTransactionid(wallet.getTransactionid()+":"+transaction.getId());
+                        if(wallet.getTransactionid().equals("")){
+                            wallet.setTransactionid(String.valueOf(transaction.getId()));
+                        }else{
+                            wallet.setTransactionid(wallet.getTransactionid()+":"+transaction.getId());
+                        }
                         walletServiceImp.getRepository().save(wallet);
 
                         Wallet shopWallet = walletServiceImp.getRepository().findById(suser.getWalletid()).orElse(null);
                         if(shopWallet==null) throw new NullPointerException();
-                        shopWallet.setBalance(BigDecimal.valueOf(shopWallet.getBalance().doubleValue()+money));
+                        shopWallet.setBalance(BigDecimal.valueOf(shopWallet.getBalance().doubleValue()+money/coupon.getConponprice().doubleValue()));
                         Transaction shopTransaction = new Transaction();
                         shopTransaction.setCouponid(pay_bean.getCouponId());
                         shopTransaction.setMore("被用优惠卷购买了");
@@ -204,7 +212,11 @@ public class NController {
                         transactionServiceImp.getRepository().save(shopTransaction);
 
                         shopTransaction = transactionServiceImp.getRepository().findByUuid(uuid2);
-                        shopWallet.setTransactionid(shopWallet.getTransactionid()+":"+shopTransaction.getId());
+                        if(shopWallet.getTransactionid().equals("")){
+                            shopWallet.setTransactionid(String.valueOf(shopTransaction.getId()));
+                        }else{
+                            shopWallet.setTransactionid(shopWallet.getTransactionid()+":"+shopTransaction.getId());
+                        }
                         walletServiceImp.getRepository().save(shopWallet);
                         order.setStatusid(2);
                         ordeServiceImp.getRepository().save(order);
@@ -269,8 +281,11 @@ public class NController {
                         transaction.setUuid(uuid);
                         transactionServiceImp.getRepository().save(transaction);
                         transaction = transactionServiceImp.getRepository().findByUuid(uuid);
-                        wallet.setTransactionid(wallet.getTransactionid()+":"+transaction.getId());
-                        walletServiceImp.getRepository().save(wallet);
+                        if(wallet.getTransactionid().equals("")){
+                            wallet.setTransactionid(String.valueOf(transaction.getId()));
+                        }else{
+                            wallet.setTransactionid(wallet.getTransactionid()+":"+transaction.getId());
+                        }                        walletServiceImp.getRepository().save(wallet);
 
                         System.out.println("seurid:"+order.getSuserid());
                         Suser suser = suserServiceImp.getRepository().findById(order.getSuserid()).orElse(null);
@@ -290,8 +305,11 @@ public class NController {
                         transactionServiceImp.getRepository().save(shopTransaction);
 
                         shopTransaction = transactionServiceImp.getRepository().findByUuid(uuid2);
-                        shopWallet.setTransactionid(shopWallet.getTransactionid()+":"+shopTransaction.getId());
-                        walletServiceImp.getRepository().save(shopWallet);
+                        if(shopWallet.getTransactionid().equals("")){
+                            shopWallet.setTransactionid(String.valueOf(shopTransaction.getId()));
+                        }else{
+                            shopWallet.setTransactionid(shopWallet.getTransactionid()+":"+shopTransaction.getId());
+                        }                        walletServiceImp.getRepository().save(shopWallet);
                         order.setStatusid(2);
                         ordeServiceImp.getRepository().save(order);
                         return RUtils.success(order);
@@ -356,9 +374,58 @@ public class NController {
             Coupon coupon = conponServiceImp.getRepository().findById(userconpon.getId()).orElse(null);
             if(coupon!=null)coupons.add(coupon);
         }
-
         return RUtils.success(coupons);
     }
 
+    @ApiOperation("获得订单列表 传入size")
+    @GetMapping("/orders")
+    public Result orders(HttpServletRequest request,int size) {
+        String jwt = request.getHeader("jwt");
+        Claims claims = jwtUtils.parseJWT(jwt);
+        String subject = claims.getSubject();
+        JSONObject jsonObject = JSONObject.parseObject(subject);
+        User user = userServiceImp.getRepository().findByAccount(JSONObject.toJavaObject(jsonObject, User.class).getAccount());
+        //获得普通用户订单
+        Nuser nuser = nuserServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
+        List<Orde> orders = new ArrayList<Orde>();
+        if(nuser==null)throw new NullPointerException();
+        else {
+            orders = ordeServiceImp.getRepository().getAll(size,size+10,nuser.getId());
+            return RUtils.success(orders);
+        }
+    }
+
+    @ApiOperation("获得指定订单 传入id")
+    @GetMapping("/g_order")
+    public Result g_order(HttpServletRequest request,int id){
+        String jwt = request.getHeader("jwt");
+        Claims claims = jwtUtils.parseJWT(jwt);
+        String subject = claims.getSubject();
+        JSONObject jsonObject = JSONObject.parseObject(subject);
+        User user = userServiceImp.getRepository().findByAccount(JSONObject.toJavaObject(jsonObject, User.class).getAccount());
+        //获得普通用户订单
+        Nuser nuser = nuserServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
+        if(nuser==null)throw new NullPointerException();
+        //先判断是否有此订单
+        Orde orde = ordeServiceImp.getRepository().findByNuseridAndId(nuser.getId(),id);
+        if(orde == null) throw new NullPointerException();
+        return RUtils.success(orde);
+    }
+
+    @ApiOperation(".获得一部分消息   size")
+    @GetMapping("/msgs")
+    public Result msgs(HttpServletRequest request,int size){
+        String jwt = request.getHeader("jwt");
+        Claims claims = jwtUtils.parseJWT(jwt);
+        String subject = claims.getSubject();
+        JSONObject jsonObject = JSONObject.parseObject(subject);
+        User user = userServiceImp.getRepository().findByAccount(JSONObject.toJavaObject(jsonObject, User.class).getAccount());
+        //获得普通用户订单
+        Nuser nuser = nuserServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
+        if(nuser==null) throw new NullPointerException();
+        List<Msg> msgs = new ArrayList<>();
+        msgs = msgServiceImp.getRepository().getAll(size,size+15,nuser.getId());
+        return RUtils.success(msgs);
+    }
 
 }

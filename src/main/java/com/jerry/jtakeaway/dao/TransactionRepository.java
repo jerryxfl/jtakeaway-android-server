@@ -8,4 +8,7 @@ import org.springframework.stereotype.Repository;
 @Repository("TransactionDao")
 public interface TransactionRepository extends JpaRepository<Transaction, Integer> {
     Transaction findByUuid(String uuid);
+
+
+
 }

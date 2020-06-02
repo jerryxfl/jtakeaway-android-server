@@ -4,20 +4,39 @@ import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
-public class Suser implements Serializable {
+public class Suser {
     private int id;
     private String shopname;
     private String shoplicense;
     private String idcard;
     private String name;
     private String shopaddress;
-    private Integer slideid;
+    private String slideid;
+    private Integer applyid;
     private Integer walletid;
-    private int applyid;
+
+    @Basic
+    @Column(name = "WALLETID")
+    public Integer getWalletid() {
+        return walletid;
+    }
+
+    public void setWalletid(Integer walletid) {
+        this.walletid = walletid;
+    }
+
+    @Basic
+    @Column(name = "APPLYID")
+    public Integer getApplyid() {
+        return applyid;
+    }
+
+    public void setApplyid(Integer applyid) {
+        this.applyid = applyid;
+    }
 
     @Id
     @Column(name = "ID")
@@ -81,32 +100,12 @@ public class Suser implements Serializable {
 
     @Basic
     @Column(name = "SLIDEID")
-    public Integer getSlideid() {
+    public String getSlideid() {
         return slideid;
     }
 
-    public void setSlideid(Integer slideid) {
+    public void setSlideid(String slideid) {
         this.slideid = slideid;
-    }
-
-    @Basic
-    @Column(name = "WALLETID")
-    public Integer getWalletid() {
-        return walletid;
-    }
-
-    public void setWalletid(Integer walletid) {
-        this.walletid = walletid;
-    }
-
-    @Basic
-    @Column(name = "APPLYID")
-    public int getApplyid() {
-        return applyid;
-    }
-
-    public void setApplyid(int applyid) {
-        this.applyid = applyid;
     }
 
     @Override
@@ -115,18 +114,16 @@ public class Suser implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         Suser suser = (Suser) o;
         return id == suser.id &&
-                applyid == suser.applyid &&
                 Objects.equals(shopname, suser.shopname) &&
                 Objects.equals(shoplicense, suser.shoplicense) &&
                 Objects.equals(idcard, suser.idcard) &&
                 Objects.equals(name, suser.name) &&
                 Objects.equals(shopaddress, suser.shopaddress) &&
-                Objects.equals(slideid, suser.slideid) &&
-                Objects.equals(walletid, suser.walletid);
+                Objects.equals(slideid, suser.slideid);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, shopname, shoplicense, idcard, name, shopaddress, slideid, walletid, applyid);
+        return Objects.hash(id, shopname, shoplicense, idcard, name, shopaddress, slideid);
     }
 }
