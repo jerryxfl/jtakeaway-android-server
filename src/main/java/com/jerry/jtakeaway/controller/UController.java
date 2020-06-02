@@ -430,4 +430,47 @@ public class UController {
             }
         }
     }
+
+
+
+    @ApiOperation("开通钱包 ")
+    @GetMapping("/o_wallet")
+    public Result o_wallet(HttpServletRequest request){
+        String jwt = request.getHeader("jwt");
+        Claims claims = jwtUtils.parseJWT(jwt);
+        String subject = claims.getSubject();
+        JSONObject jsonObject = JSONObject.parseObject(subject);
+        User user = userServiceImp.getRepository().findByAccount(JSONObject.toJavaObject(jsonObject, User.class).getAccount());
+        Wallet wallet = new Wallet();
+        switch(user.getUsertype()){
+            case 0:
+                Nuser nuser = nusersServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
+                if(nuser==null) throw new NullPointerException();
+                Wallet wallet1 = walletServiceImp.getRepository().save(wallet);
+                nuser.setWallet(wallet1.getId());
+                Nuser nuser1 = nusersServiceImp.getRepository().save(nuser);
+                return RUtils.success(nuser1);
+            case 1:
+                Suser suser = suserServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
+                if(suser==null) throw new NullPointerException();
+                Wallet wallet2 = walletServiceImp.getRepository().save(wallet);
+                suser.setWalletid(wallet2.getId());
+                Suser suser1 = suserServiceImp.getRepository().save(suser);
+                return RUtils.success(suser1);
+            case 2:
+                Huser huser = huserServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
+                if(huser==null) throw new NullPointerException();
+                Wallet wallet3 =  walletServiceImp.getRepository().save(wallet);
+                huser.setWalletid(wallet3.getId());
+                Huser huser1 = huserServiceImp.getRepository().save(huser);
+                return RUtils.success(huser1);
+            case 3:
+                return RUtils.Err(Renum.NO_WALLTE.getCode(),Renum.NO_WALLTE.getMsg());
+            default:
+                throw new IllegalArgumentException();
+        }
+    }
+
+
+
 }
