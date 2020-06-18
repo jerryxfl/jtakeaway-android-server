@@ -17,6 +17,7 @@ public class Suser {
     private String slideid;
     private Integer applyid;
     private Integer walletid;
+    private String dscr;
 
     @Basic
     @Column(name = "WALLETID")
@@ -125,5 +126,15 @@ public class Suser {
     @Override
     public int hashCode() {
         return Objects.hash(id, shopname, shoplicense, idcard, name, shopaddress, slideid);
+    }
+
+    @Basic
+    @Column(name = "DSCR")
+    public String getDscr() {
+        return dscr;
+    }
+
+    public void setDscr(String dscr) {
+        this.dscr = dscr;
     }
 }

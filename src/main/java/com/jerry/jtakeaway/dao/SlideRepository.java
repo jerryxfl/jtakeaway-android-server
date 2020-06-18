@@ -10,4 +10,5 @@ import java.util.List;
 @Repository("SlideDao")
 public interface SlideRepository extends JpaRepository<Slide, Integer> {
     List<Slide> findByUserid(int userid);
+    Slide findByUseridAndId(int userid,int id);
 }

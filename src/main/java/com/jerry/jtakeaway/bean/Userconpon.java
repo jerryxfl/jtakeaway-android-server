@@ -13,6 +13,7 @@ public class Userconpon {
     private int conponid;
     private int nuserid;
     private Timestamp createtime;
+    private int status;
 
     @Id
     @Column(name = "ID")
@@ -68,5 +69,15 @@ public class Userconpon {
     @Override
     public int hashCode() {
         return Objects.hash(id, conponid, nuserid, createtime);
+    }
+
+    @Basic
+    @Column(name = "STATUS")
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 }

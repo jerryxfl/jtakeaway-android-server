@@ -11,10 +11,15 @@ import io.jsonwebtoken.Claims;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -184,39 +189,22 @@ public class SController {
     }
 
 
-    @ApiOperation("添加轮播图    slide")
-    @PostMapping("/a_slide")
-    public Result a_menu(HttpServletRequest request,@RequestBody Slide slide){
-        Object[] params = parseSUER(request);
-        User user = (User) params[0];
-        Suser suser = (Suser) params[1];
-        if(suser==null)throw new NullPointerException();
-        Slide save = slideServiceImp.getRepository().save(slide);
-        if(save==null)throw new NullPointerException();
-        if(suser.getSlideid().equals("")){
-            suser.setSlideid(save.getId()+"");
-        }else{
-            suser.setSlideid(suser.getSlideid()+":"+save.getId());
-        }
-        return RUtils.success(suser);
-    }
-
-    @ApiOperation("修改商家轮播图       slide")
-    @PostMapping("/alter_slide")
-    public Result alter_menu(HttpServletRequest request,@RequestBody Slide slide){
-        Object[] params = parseSUER(request);
-        User user = (User) params[0];
-        Suser suser = (Suser) params[1];
-        if(suser==null)throw new NullPointerException();
-        String[] slides = suser.getSlideid().split(":");
-        for (int i = 0; i < slides.length; i++) {
-            if(slides[i].equals(slide.getId())){
-                Slide save = slideServiceImp.getRepository().save(slide);
-                return RUtils.success(save);
-            }
-        }
-        throw new IllegalArgumentException();
-    }
+//    @ApiOperation("修改商家轮播图       slide")
+//    @PostMapping("/alter_slide")
+//    public Result alter_menu(HttpServletRequest request,@RequestBody Slide slide){
+//        Object[] params = parseSUER(request);
+//        User user = (User) params[0];
+//        Suser suser = (Suser) params[1];
+//        if(suser==null)throw new NullPointerException();
+//        String[] slides = suser.getSlideid().split(":");
+//        for (int i = 0; i < slides.length; i++) {
+//            if(slides[i].equals(slide.getId())){
+//                Slide save = slideServiceImp.getRepository().save(slide);
+//                return RUtils.success(save);
+//            }
+//        }
+//        throw new IllegalArgumentException();
+//    }
 
     @ApiOperation("获得商家这边一部分的订单     size")
     @GetMapping("/g_sorders")
@@ -241,6 +229,52 @@ public class SController {
         if(orde==null)throw new NullPointerException();
         if(orde.getSuserid()!=suser.getId()) throw new IllegalArgumentException();
         return RUtils.success(orde);
+    }
+
+    @Resource
+    HttpServletRequest request;
+
+    @Resource
+    HttpSession session;
+
+
+    @ApiOperation("上传轮播图片")
+    @GetMapping("/u_sslide")
+    public Result u_slide(@RequestParam("file") MultipartFile mfile) throws IOException {
+        Object[] params = parseSUER(request);
+        User user = (User) params[0];
+        Suser suser = (Suser) params[1];
+
+        System.out.println("有文件上传");
+        if(mfile.isEmpty())throw new NullPointerException();
+
+        String originalFilename = mfile.getOriginalFilename();
+
+        File file = null;
+        Slide slide = null;
+        try{
+            File path = new File(ResourceUtils.getURL("classpath:").getPath());
+            File upload = new File(path.getAbsolutePath(), "static/slide/"+user.getAccount()+"/");
+            if (!upload.exists()) upload.mkdirs();
+            String uploadPath = upload.getPath() + "\\";
+            file = new File(uploadPath + originalFilename);
+            mfile.transferTo(file);
+            System.out.println(file.getPath());
+            String remoteaddr = "http://localhost:8080/api-0.1/slide/"+user.getAccount()+"/"+originalFilename;
+            slide = new Slide();
+            slide.setUserid(user.getId());
+            slide.setImg(remoteaddr);
+            slide = slideServiceImp.getRepository().save(slide);
+            if(suser.getSlideid().equals("")){
+                suser.setSlideid(slide.getId()+"");
+            }else{
+                suser.setSlideid(suser.getSlideid()+":"+slide.getId());
+            }
+            suser = suserServiceImp.getRepository().save(suser);
+        }catch(Exception e){
+            throw e;
+        }
+        return RUtils.success(suser);
     }
 
 }

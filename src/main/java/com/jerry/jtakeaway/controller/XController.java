@@ -10,10 +10,15 @@ import com.jerry.jtakeaway.utils.bean.Result;
 import io.jsonwebtoken.Claims;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,29 +90,29 @@ public class XController {
     }
 
 
-    @ApiOperation("添加轮播图    slide")
-    @PostMapping("/a_xslide")
-    public Result a_menu(HttpServletRequest request,@RequestBody Slide slide){
-        Object[] params = parseSUER(request);
-        User user = (User) params[0];
-        Xuser xuser = (Xuser) params[1];
-        if(xuser==null)throw new NullPointerException();
-        Slide save = slideServiceImp.getRepository().save(slide);
-        return RUtils.success(save);
-    }
+//    @ApiOperation("添加轮播图    slide")
+//    @PostMapping("/a_xslide")
+//    public Result a_menu(HttpServletRequest request,@RequestBody Slide slide){
+//        Object[] params = parseSUER(request);
+//        User user = (User) params[0];
+//        Xuser xuser = (Xuser) params[1];
+//        if(xuser==null)throw new NullPointerException();
+//        Slide save = slideServiceImp.getRepository().save(slide);
+//        return RUtils.success(save);
+//    }
 
-    @ApiOperation("修改轮播图       slide")
-    @PostMapping("/alter_xslide")
-    public Result alter_menu(HttpServletRequest request,@RequestBody Slide slide){
-        Object[] params = parseSUER(request);
-        User user = (User) params[0];
-        Xuser xuser = (Xuser) params[1];
-        if(xuser==null)throw new NullPointerException();
-        if(slide==null)throw new NullPointerException();
-        if(slide.getUserid()!=user.getId())throw new IllegalArgumentException();
-        Slide save = slideServiceImp.getRepository().save(slide);
-        return RUtils.success(save);
-    }
+//    @ApiOperation("修改轮播图       slide")
+//    @PostMapping("/alter_xslide")
+//    public Result alter_menu(HttpServletRequest request,@RequestBody Slide slide){
+//        Object[] params = parseSUER(request);
+//        User user = (User) params[0];
+//        Xuser xuser = (Xuser) params[1];
+//        if(xuser==null)throw new NullPointerException();
+//        if(slide==null)throw new NullPointerException();
+//        if(slide.getUserid()!=user.getId())throw new IllegalArgumentException();
+//        Slide save = slideServiceImp.getRepository().save(slide);
+//        return RUtils.success(save);
+//    }
 
 
     @ApiOperation("添加广播        content")
@@ -136,7 +141,45 @@ public class XController {
         return RUtils.success(all);
     }
 
+    @Resource
+    HttpServletRequest request;
 
+    @Resource
+    HttpSession session;
+
+
+    @ApiOperation("上传轮播图片")
+    @GetMapping("/u_xslide")
+    public Result u_slide(@RequestParam("file") MultipartFile mfile) throws IOException {
+        Object[] params = parseSUER(request);
+        User user = (User) params[0];
+        Xuser xuser = (Xuser) params[1];
+
+        System.out.println("有文件上传");
+        if(mfile.isEmpty())throw new NullPointerException();
+
+        String originalFilename = mfile.getOriginalFilename();
+
+        File file = null;
+        Slide slide = null;
+        try{
+            File path = new File(ResourceUtils.getURL("classpath:").getPath());
+            File upload = new File(path.getAbsolutePath(), "static/slide/"+user.getAccount()+"/");
+            if (!upload.exists()) upload.mkdirs();
+            String uploadPath = upload.getPath() + "\\";
+            file = new File(uploadPath + originalFilename);
+            mfile.transferTo(file);
+            System.out.println(file.getPath());
+            String remoteaddr = "http://localhost:8080/api-0.1/slide/"+user.getAccount()+"/"+originalFilename;
+            slide = new Slide();
+            slide.setUserid(user.getId());
+            slide.setImg(remoteaddr);
+            slide = slideServiceImp.getRepository().save(slide);
+        }catch(Exception e){
+            throw e;
+        }
+        return RUtils.success(slide);
+    }
 
 
 }

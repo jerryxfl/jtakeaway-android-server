@@ -31,7 +31,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-@Api
+@Api(description="普通用户")
 @RestController
 @RequestMapping("/N")
 @SuppressWarnings("all")
@@ -166,6 +166,9 @@ public class NController {
                     if(userconpon==null) return RUtils.Err(Renum.USER_NO_CONPON.getCode(),Renum.USER_NO_CONPON.getMsg());
                     if(coupon==null) return RUtils.Err(Renum.NO_CONPON.getCode(),Renum.NO_CONPON.getMsg());
                     //判断优惠卷是否有效
+                    if(userconpon.getStatus()==1){//已被使用
+                        return RUtils.Err(Renum.CONPON_NO_ZQ.getCode(),Renum.CONPON_NO_ZQ.getMsg());
+                    }
                     Date now  = new Date();
                     Date couponDate = coupon.getConponfailuretime();
                     int compareTo = now.compareTo(couponDate);
@@ -196,6 +199,10 @@ public class NController {
                             wallet.setTransactionid(wallet.getTransactionid()+":"+transaction.getId());
                         }
                         walletServiceImp.getRepository().save(wallet);
+
+                        //设置优惠将已用
+                        userconpon.setStatus(1);
+                        userConponServiceImp.getRepository().save(userconpon);
 
                         Wallet shopWallet = walletServiceImp.getRepository().findById(suser.getWalletid()).orElse(null);
                         if(shopWallet==null) throw new NullPointerException();

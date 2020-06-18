@@ -21,7 +21,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 
-@Api
+@Api(description = "登录 登出")
 @RestController
 @RequestMapping("/authen")
 public class loginController {
@@ -52,7 +52,12 @@ public class loginController {
                     //用户不为空 表示用户还在登录  判断token是否相等
                     if(jwt.equals(redisUtils.get(user.getAccount()))){
                         //是本人登录
-                        return RUtils.Err(Renum.SUCCESS.getCode(),Renum.SUCCESS.getMsg());
+                        User Quser = userServiceImp.getRepository().findByAccount(user.getAccount());
+                        if(Quser.getPassword().equals(user.getPassword())){
+                            return RUtils.success();
+                        }else{
+                            return RUtils.Err(Renum.PWD_ERROE.getCode(),Renum.PWD_ERROE.getMsg());
+                        }
                     }else{
                         //其他人登录
                         /**
@@ -88,19 +93,28 @@ public class loginController {
             return  RUtils.Err(Renum.USER_IS_EXISTS.getCode(),Renum.USER_IS_EXISTS.getMsg());
         }else{
             //生成jwt
-            JSONObject json = new JSONObject();
-            json.put("account",user.getAccount());
-            json.put("password",user.getPassword());
-            String jwt = jwtUtils.createJWT(json.toJSONString());
-            //存库
-            redisUtils.set(user.getAccount(), jwt);
-            User resultUser = userServiceImp.getRepository().findByAccount(user.getAccount());
-            resultUser.setPassword("");
-            JSONObject resultJson = new JSONObject();
-            resultJson.put("jwt",jwt);
-            resultJson.put("user",resultUser);
-            System.out.println("jwt --------:"+jwt);
-            return RUtils.success(resultJson.toJSONString());
+            User qUser = userServiceImp.getRepository().findByAccount(user.getAccount());
+            if(qUser!=null){
+                if(user.getPassword().equals(qUser.getPassword())){
+                    JSONObject json = new JSONObject();
+                    json.put("account",user.getAccount());
+                    json.put("password",user.getPassword());
+                    String jwt = jwtUtils.createJWT(json.toJSONString());
+                    //存库
+                    redisUtils.set(user.getAccount(), jwt);
+                    User resultUser = userServiceImp.getRepository().findByAccount(user.getAccount());
+                    resultUser.setPassword("");
+                    JSONObject resultJson = new JSONObject();
+                    resultJson.put("jwt",jwt);
+                    resultJson.put("user",resultUser);
+                    System.out.println("jwt --------:"+jwt);
+                    return RUtils.success(resultJson.toJSONString());
+                }else{
+                    return RUtils.Err(Renum.PWD_ERROE.getCode(),Renum.PWD_ERROE.getMsg());
+                }
+            }else{
+                return RUtils.Err(Renum.USER_NOT_EXIST.getCode(),Renum.USER_NOT_EXIST.getMsg());
+            }
         }
 
     }
