@@ -18,6 +18,9 @@ public class Suser {
     private Integer applyid;
     private Integer walletid;
     private String dscr;
+    private double level;
+    private int leveltime;
+    private double alllevel;
 
     @Basic
     @Column(name = "WALLETID")
@@ -136,5 +139,35 @@ public class Suser {
 
     public void setDscr(String dscr) {
         this.dscr = dscr;
+    }
+
+    @Basic
+    @Column(name = "LEVEL")
+    public double getLevel() {
+        return level;
+    }
+
+    public void setLevel(double level) {
+        this.level = level;
+    }
+
+    @Basic
+    @Column(name = "LEVELTIME")
+    public int getLeveltime() {
+        return leveltime;
+    }
+
+    public void setLeveltime(int leveltime) {
+        this.leveltime = leveltime;
+    }
+
+    @Basic
+    @Column(name = "ALLLEVEL")
+    public double getAlllevel() {
+        return alllevel;
+    }
+
+    public void setAlllevel(double alllevel) {
+        this.alllevel = alllevel;
     }
 }

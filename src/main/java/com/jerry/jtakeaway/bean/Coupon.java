@@ -12,10 +12,12 @@ import java.util.Objects;
 public class Coupon {
     private int id;
     private String conpondesc;
-    private BigDecimal conponprice;
+    private Double conponprice;
     private Integer conpontarget;
     private Timestamp conponfailuretime;
+    private int num;
 
+//    {"conponprice":0.2,"conponfailuretime":"2020-06-04T00:25:57.000+00:00","id":1,"conpondesc":"对所有商家有用"}
     @Id
     @Column(name = "ID")
     public int getId() {
@@ -38,11 +40,15 @@ public class Coupon {
 
     @Basic
     @Column(name = "CONPONPRICE")
-    public BigDecimal getConponprice() {
+    public Double getConponprice() {
         return conponprice;
     }
 
-    public void setConponprice(BigDecimal conponprice) {
+    public void setConponprice(double conponprice) {
+        this.conponprice = conponprice;
+    }
+
+    public void setConponprice(Double conponprice) {
         this.conponprice = conponprice;
     }
 
@@ -81,5 +87,15 @@ public class Coupon {
     @Override
     public int hashCode() {
         return Objects.hash(id, conpondesc, conponprice, conpontarget, conponfailuretime);
+    }
+
+    @Basic
+    @Column(name = "NUM")
+    public int getNum() {
+        return num;
+    }
+
+    public void setNum(int num) {
+        this.num = num;
     }
 }

@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @Api(description = "公共接口")
 @RestController
@@ -45,7 +46,8 @@ public class GController {
     @Resource
     XuserServiceImp xuserServiceImp;
 
-
+    @Resource
+    CommentServiceImp commentServiceImp;
 
     @Resource
     TransactionServiceImp transactionServiceImp;
@@ -84,10 +86,7 @@ public class GController {
                 if (apply != null) {
                     if (apply.getAuditstatus() == 2) {
                         suser.setIdcard(null);
-                        suser.setShopaddress(null);
-                        suser.setSlideid(null);
                         suser.setWalletid(null);
-                        suser.setApplyid(0);
                         return RUtils.success(suser);
                     }
                 }
@@ -117,6 +116,18 @@ public class GController {
         }
         return RUtils.success(rSusers);
     }
+
+
+    @ApiOperation("获取5星商家")
+    @GetMapping("/five_level_shop")
+    public Result five_level_shop(int size) {
+        List<Suser> susers = new ArrayList<>();
+        susers = suserServiceImp.getRepository().FiveLevelShopList(size,size+10,4);
+        return RUtils.success(susers);
+    }
+
+
+
 
     @ApiOperation("获取顶部轮播图")
     @GetMapping("/top_slides")
@@ -181,7 +192,49 @@ public class GController {
         }
     }
 
+    @ApiOperation("获取商家评论")
+    @GetMapping("/shop_comment")
+    public Result shop_comment(int suserid) {
+        Suser suser = suserServiceImp.getRepository().getOne(suserid);
+        List<Comment> comments = commentServiceImp.getRepository().findBySuserid(suser.getId());
+        return RUtils.success(comments);
+    }
+
+    @Resource
+    MenusServiceImp menusServiceImp;
+
+    @ApiOperation("获得指定商家一部分菜单 size")
+    @GetMapping("/g_shops_menus")
+    public Result g_shops_menus(int shopid, int size){
+        Suser suser = suserServiceImp.getRepository().findById(shopid).orElse(null);
+        if(suser==null)throw new NullPointerException();
+        List<Menus> menus = new ArrayList<Menus>();
+        menus = menusServiceImp.getRepository().getAll(size,size+15,suser.getId());
+        return RUtils.success(menus);
+    }
 
 
 
+    @ApiOperation("获得热门菜单")
+    @GetMapping("/g_hot_menus")
+    public Result g_hot_menus(){
+        List<Menus> menus = new ArrayList<Menus>();
+        List<Menus> rMenus = new ArrayList<Menus>();
+        menus = menusServiceImp.getRepository().findAll();
+        Random rand = new Random();
+        if(menus.size()>10){
+            for (int i = 0; i < 10; i++) {
+                Menus menu = menus.get(rand.nextInt(menus.size()));
+                rMenus.add(menu);
+                menus.remove(menu);
+            }
+        }else{
+            for (int i = 0; i < menus.size(); i++) {
+                Menus menu = menus.get(rand.nextInt(menus.size()));
+                rMenus.add(menu);
+                menus.remove(menu);
+            }
+        }
+        return RUtils.success(rMenus);
+    }
 }

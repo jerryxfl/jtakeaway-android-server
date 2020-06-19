@@ -12,7 +12,7 @@ import java.util.Objects;
 public class Transaction {
     private int id;
     private Timestamp paytime;
-    private BigDecimal paymoney;
+    private Double paymoney;
     private int userid;
     private String more;
     private Integer couponid;
@@ -51,11 +51,11 @@ public class Transaction {
 
     @Basic
     @Column(name = "PAYMONEY")
-    public BigDecimal getPaymoney() {
+    public Double getPaymoney() {
         return paymoney;
     }
 
-    public void setPaymoney(BigDecimal paymoney) {
+    public void setPaymoney(Double paymoney) {
         this.paymoney = paymoney;
     }
 

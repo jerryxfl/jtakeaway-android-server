@@ -26,6 +26,7 @@ import org.springframework.web.util.HtmlUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -34,7 +35,7 @@ import java.util.*;
 @Api(description="普通用户")
 @RestController
 @RequestMapping("/N")
-@SuppressWarnings("all")
+//@SuppressWarnings("all")
 public class NController {
 
     @Resource
@@ -150,9 +151,15 @@ public class NController {
                         Menus menus = menusServiceImp.getRepository().findById(key).orElse(null);
                         assert menus != null;
                         if(menus.getFoodlowprice()!=null){
-                            money = money + menus.getFoodlowprice().doubleValue()*value;
+                            Date foodlowfila = menus.getLowpricefailed();
+                            Date now1 = new Date();
+                            if(now1.after(foodlowfila)){
+                                money = money + menus.getFoodprice()*value;
+                            }else{
+                                money = money + menus.getFoodlowprice()*value;
+                            }
                         }else{
-                            money = money + menus.getFoodprice().doubleValue()*value;
+                            money = money + menus.getFoodprice()*value;
                         }
                     }
                     System.out.println("seurid:"+order.getSuserid());
@@ -161,10 +168,11 @@ public class NController {
 
                     //计算优惠卷使用后价格
                     Coupon coupon = conponServiceImp.getRepository().findById(pay_bean.getCouponId()).orElse(null);
+                    if(coupon==null) return RUtils.Err(Renum.NO_CONPON.getCode(),Renum.NO_CONPON.getMsg());
+
                     //判断用户是否有此优惠卷
                     Userconpon userconpon = userConponServiceImp.getRepository().findByConponidAndNuserid(coupon.getId(),nuser.getId());
                     if(userconpon==null) return RUtils.Err(Renum.USER_NO_CONPON.getCode(),Renum.USER_NO_CONPON.getMsg());
-                    if(coupon==null) return RUtils.Err(Renum.NO_CONPON.getCode(),Renum.NO_CONPON.getMsg());
                     //判断优惠卷是否有效
                     if(userconpon.getStatus()==1){//已被使用
                         return RUtils.Err(Renum.CONPON_NO_ZQ.getCode(),Renum.CONPON_NO_ZQ.getMsg());
@@ -174,19 +182,19 @@ public class NController {
                     int compareTo = now.compareTo(couponDate);
                     if(compareTo > 0)return RUtils.Err(Renum.CONPON_FAIL.getCode(),Renum.CONPON_FAIL.getMsg());
                     if(coupon.getConpontarget()==null||coupon.getConpontarget()==suser.getId())
-                        money = money*coupon.getConponprice().doubleValue();
+                        money = money*coupon.getConponprice();
                     else return RUtils.Err(Renum.CONPON_NO_ZQ.getCode(),Renum.CONPON_NO_ZQ.getMsg());
                     System.out.println("总价:"+money);
                     if(!pay_bean.getPayPassword().equals(wallet.getPaymentpassword())) return RUtils.Err(Renum.PAYPAS_FAIL.getCode(),Renum.PAYPAS_FAIL.getMsg());
-                    if(wallet.getBalance().doubleValue()>money){
+                    if(wallet.getBalance()>money){
                         //钱包扣钱
-                        wallet.setBalance(BigDecimal.valueOf(wallet.getBalance().doubleValue()-money));
+                        wallet.setBalance(wallet.getBalance()-money);
                         //创建交易记录
                         String uuid = UUID.randomUUID().toString();
                         Transaction transaction = new Transaction();
                         transaction.setCouponid(pay_bean.getCouponId());
                         transaction.setMore("使用优惠卷购买了");
-                        transaction.setPaymoney(BigDecimal.valueOf(money));
+                        transaction.setPaymoney(money);
                         transaction.setPaytime(new Timestamp(new Date().getTime()));
                         transaction.setUserid(user.getId());
                         transaction.setTargetuserid(sUser.getId());
@@ -206,11 +214,11 @@ public class NController {
 
                         Wallet shopWallet = walletServiceImp.getRepository().findById(suser.getWalletid()).orElse(null);
                         if(shopWallet==null) throw new NullPointerException();
-                        shopWallet.setBalance(BigDecimal.valueOf(shopWallet.getBalance().doubleValue()+money/coupon.getConponprice().doubleValue()));
+                        shopWallet.setBalance(shopWallet.getBalance()+money/coupon.getConponprice());
                         Transaction shopTransaction = new Transaction();
                         shopTransaction.setCouponid(pay_bean.getCouponId());
                         shopTransaction.setMore("被用优惠卷购买了");
-                        shopTransaction.setPaymoney(BigDecimal.valueOf(money));
+                        shopTransaction.setPaymoney(money);
                         shopTransaction.setPaytime(new Timestamp(new Date().getTime()));
                         shopTransaction.setUserid(sUser.getId());
                         shopTransaction.setTargetuserid(user.getId());
@@ -231,8 +239,9 @@ public class NController {
                     }else return RUtils.Err(Renum.NO_MONEY.getCode(), Renum.NO_MONEY.getMsg());
                 }
             }
+        }else{
+            return RUtils.Err(Renum.PREMS_FAIL.getCode(), Renum.PREMS_FAIL.getMsg());
         }
-        return RUtils.success();
     }
 
 
@@ -267,21 +276,26 @@ public class NController {
                         Menus menus = menusServiceImp.getRepository().findById(key).orElse(null);
                         assert menus != null;
                         if(menus.getFoodlowprice()!=null){
-                            money = money + menus.getFoodlowprice().doubleValue()*value;
-                        }else{
-                            money = money + menus.getFoodprice().doubleValue()*value;
+                            Date foodlowfila = menus.getLowpricefailed();
+                            Date now1 = new Date();
+                            if(now1.after(foodlowfila)){
+                                money = money + menus.getFoodprice()*value;
+                            }else{
+                                money = money + menus.getFoodlowprice()*value;
+                            }                        }else{
+                            money = money + menus.getFoodprice()*value;
                         }
                     }
                     System.out.println("总价:"+money);
                     if(!pay_bean.getPayPassword().equals(wallet.getPaymentpassword())) return RUtils.Err(Renum.PAYPAS_FAIL.getCode(),Renum.PAYPAS_FAIL.getMsg());
-                    if(wallet.getBalance().doubleValue()>money){
+                    if(wallet.getBalance()>money){
                         //钱包扣钱
-                        wallet.setBalance(BigDecimal.valueOf(wallet.getBalance().doubleValue()-money));
+                        wallet.setBalance(wallet.getBalance()-money);
                         //创建交易记录
                         String uuid = UUID.randomUUID().toString();
                         Transaction transaction = new Transaction();
                         transaction.setMore("直接购买了");
-                        transaction.setPaymoney(BigDecimal.valueOf(money));
+                        transaction.setPaymoney(money);
                         transaction.setPaytime(new Timestamp(new Date().getTime()));
                         transaction.setUserid(user.getId());
                         transaction.setTargetuserid(sUser.getId());
@@ -300,10 +314,10 @@ public class NController {
 
                         Wallet shopWallet = walletServiceImp.getRepository().findById(suser.getWalletid()).orElse(null);
                         if(shopWallet==null) throw new NullPointerException();
-                        shopWallet.setBalance(BigDecimal.valueOf(shopWallet.getBalance().doubleValue()+money));
+                        shopWallet.setBalance(shopWallet.getBalance()+money);
                         Transaction shopTransaction = new Transaction();
                         shopTransaction.setMore("直接购买了");
-                        shopTransaction.setPaymoney(BigDecimal.valueOf(money));
+                        shopTransaction.setPaymoney(money);
                         shopTransaction.setPaytime(new Timestamp(new Date().getTime()));
                         shopTransaction.setUserid(sUser.getId());
                         shopTransaction.setTargetuserid(user.getId());
@@ -336,10 +350,12 @@ public class NController {
         coupons = conponServiceImp.getRepository().findAll();
         for(Coupon coupon : coupons){
             //判断优惠卷是否有效
-            Date now  = new Date();
-            Date couponDate = coupon.getConponfailuretime();
-            int compareTo = now.compareTo(couponDate);
-            if(compareTo < 0)rCoupons.add(coupon);
+            if(coupon.getNum()>0){
+                Date now  = new Date();
+                Date couponDate = coupon.getConponfailuretime();
+                int compareTo = now.compareTo(couponDate);
+                if(compareTo < 0)rCoupons.add(coupon);
+            }
         }
         return RUtils.success(rCoupons);
     }
@@ -356,11 +372,14 @@ public class NController {
         if(nuser==null) throw new JException(Renum.UNKNOWN_ERROR.getCode(), Renum.UNKNOWN_ERROR.getMsg());
         Coupon coupon = conponServiceImp.getRepository().findById(conponid).orElse(null);
         if(coupon==null) throw new JException(Renum.UNKNOWN_ERROR.getCode(), Renum.UNKNOWN_ERROR.getMsg());
+        if(coupon.getNum()<=0)return RUtils.Err(Renum.CONPON_WAM.getCode(),Renum.CONPON_WAM.getMsg());
         Userconpon userconpon = new Userconpon();
         userconpon.setConponid(conponid);
         userconpon.setNuserid(nuser.getId());
         userconpon.setCreatetime(new Timestamp(new Date().getTime()));
         userConponServiceImp.getRepository().save(userconpon);
+        coupon.setNum(coupon.getNum() - 1);
+        conponServiceImp.getRepository().save(coupon);
         return RUtils.success();
     }
 
@@ -378,7 +397,7 @@ public class NController {
         userconpons = userConponServiceImp.getRepository().findByNuserid(nuser.getId());
         List<Coupon> coupons = new ArrayList<Coupon>();
         for (Userconpon userconpon : userconpons){
-            Coupon coupon = conponServiceImp.getRepository().findById(userconpon.getId()).orElse(null);
+            Coupon coupon = conponServiceImp.getRepository().findById(userconpon.getConponid()).orElse(null);
             if(coupon!=null)coupons.add(coupon);
         }
         return RUtils.success(coupons);
@@ -433,6 +452,37 @@ public class NController {
         List<Msg> msgs = new ArrayList<>();
         msgs = msgServiceImp.getRepository().getAll(size,size+15,nuser.getId());
         return RUtils.success(msgs);
+    }
+
+    @Resource
+    HttpServletRequest request;
+
+    @ApiOperation("评分")
+    @GetMapping("/s_level")
+    public Result s_level(int orderid,Double level) throws IOException {
+        String jwt = request.getHeader("jwt");
+        Claims claims = jwtUtils.parseJWT(jwt);
+        String subject = claims.getSubject();
+        JSONObject jsonObject = JSONObject.parseObject(subject);
+        User user = userServiceImp.getRepository().findByAccount(JSONObject.toJavaObject(jsonObject, User.class).getAccount());
+        Nuser nuser = nuserServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
+        if(nuser == null) throw new NullPointerException();
+        Orde orde = ordeServiceImp.getRepository().findById(orderid).orElse(null);
+        if(orde == null) throw new NullPointerException();
+        if(orde.getNuserid() != nuser.getId()) throw new IllegalArgumentException();
+
+        Suser suser = suserServiceImp.getRepository().findById(orde.getSuserid()).orElse(null);
+        if (suser == null) throw new NullPointerException();
+        double all_level = suser.getAlllevel();
+        int time = suser.getLeveltime();
+        double rLevel = (all_level+level)/time+1;
+        suser.setLeveltime(time+1);
+        suser.setAlllevel(all_level+level);
+        suser.setLevel(rLevel);
+        suserServiceImp.getRepository().save(suser);
+        orde.setLevel(level);
+        ordeServiceImp.getRepository().save(orde);
+        return RUtils.success(suser);
     }
 
 }

@@ -5,6 +5,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.Objects;
 
 @Entity
@@ -14,9 +15,10 @@ public class Menus {
     private String foodname;
     private String foodimg;
     private String fooddesc;
-    private BigDecimal foodprice;
-    private BigDecimal foodlowprice;
+    private Double foodprice;
+    private Double foodlowprice;
     private int foodstatus;
+    private Timestamp lowpricefailed;
 
     @Id
     @Column(name = "ID")
@@ -70,23 +72,28 @@ public class Menus {
 
     @Basic
     @Column(name = "FOODPRICE")
-    public BigDecimal getFoodprice() {
+    public Double getFoodprice() {
         return foodprice;
     }
 
-    public void setFoodprice(BigDecimal foodprice) {
+    public void setFoodprice(double foodprice) {
+        this.foodprice = foodprice;
+    }
+
+    public void setFoodprice(Double foodprice) {
         this.foodprice = foodprice;
     }
 
     @Basic
     @Column(name = "FOODLOWPRICE")
-    public BigDecimal getFoodlowprice() {
+    public Double getFoodlowprice() {
         return foodlowprice;
     }
 
-    public void setFoodlowprice(BigDecimal foodlowprice) {
+    public void setFoodlowprice(Double foodlowprice) {
         this.foodlowprice = foodlowprice;
     }
+
 
     @Basic
     @Column(name = "FOODSTATUS")
@@ -116,5 +123,15 @@ public class Menus {
     @Override
     public int hashCode() {
         return Objects.hash(id, suerid, foodname, foodimg, fooddesc, foodprice, foodlowprice, foodstatus);
+    }
+
+    @Basic
+    @Column(name = "LOWPRICEFAILED")
+    public Timestamp getLowpricefailed() {
+        return lowpricefailed;
+    }
+
+    public void setLowpricefailed(Timestamp lowpricefailed) {
+        this.lowpricefailed = lowpricefailed;
     }
 }

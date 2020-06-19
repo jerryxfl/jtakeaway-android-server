@@ -16,7 +16,7 @@ public class Orde {
     private String menus;
     private Integer huserid;
     private int statusid;
-
+    private Double level;
 
     @Id
     @Column(name = "ID")
@@ -105,5 +105,15 @@ public class Orde {
     @Override
     public int hashCode() {
         return Objects.hash(id, nuserid, createdTime, suserid, menus, huserid, statusid);
+    }
+
+    @Basic
+    @Column(name = "LEVEL")
+    public Double getLevel() {
+        return level;
+    }
+
+    public void setLevel(Double level) {
+        this.level = level;
     }
 }

@@ -10,7 +10,7 @@ import java.util.Objects;
 @Entity
 public class Wallet {
     private int id;
-    private BigDecimal balance;
+    private Double balance;
     private String paymentpassword;
     private String transactionid;
 
@@ -26,11 +26,11 @@ public class Wallet {
 
     @Basic
     @Column(name = "BALANCE")
-    public BigDecimal getBalance() {
+    public Double getBalance() {
         return balance;
     }
 
-    public void setBalance(BigDecimal balance) {
+    public void setBalance(Double balance) {
         this.balance = balance;
     }
 

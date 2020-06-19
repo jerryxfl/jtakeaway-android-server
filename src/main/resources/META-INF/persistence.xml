@@ -30,6 +30,7 @@
         <class>com.jerry.jtakeaway.bean.Wallet</class>
         <class>com.jerry.jtakeaway.bean.Xuser</class>
         <class>com.jerry.jtakeaway.bean.Address</class>
+        <class>com.jerry.jtakeaway.bean.Comment</class>
 
 
         <!--指定Jpa注解的实体类型位置，可以不写-->

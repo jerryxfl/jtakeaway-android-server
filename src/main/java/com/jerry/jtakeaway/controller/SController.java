@@ -21,8 +21,8 @@ import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.Timestamp;
+import java.util.*;
 
 @Api(description = "商家相关")
 @RestController
@@ -85,7 +85,7 @@ public class SController {
     }
 
     @ApiOperation("获得指定商家一部分菜单 size")
-    @GetMapping("/g_shops")
+    @GetMapping("/g_shops_menus")
     public Result g_shops(HttpServletRequest request, int size){
         Object[] params = parseSUER(request);
         User user = (User) params[0];
@@ -132,7 +132,13 @@ public class SController {
         if(suser==null)throw new NullPointerException();
         Menus menus = menusServiceImp.getRepository().findByIdAndSuerid(menuid,suser.getId());
         if(menus==null)throw new NullPointerException();
-        menus.setFoodlowprice(BigDecimal.valueOf(lowprice));
+        menus.setFoodlowprice(lowprice);
+        Date date  = new Date();
+        Calendar calendar   =   new GregorianCalendar();
+        calendar.setTime(date);
+        calendar.add(calendar.DATE,1);//把日期往后增加一天.整数往后推,负数往前移动
+        date=calendar.getTime();
+        menus.setLowpricefailed(new Timestamp(date.getTime()));
         menusServiceImp.getRepository().save(menus);
         return RUtils.success(menus);
     }
@@ -265,7 +271,7 @@ public class SController {
             slide.setUserid(user.getId());
             slide.setImg(remoteaddr);
             slide = slideServiceImp.getRepository().save(slide);
-            if(suser.getSlideid().equals("")){
+            if(suser.getSlideid()==null||suser.getSlideid().equals("")){
                 suser.setSlideid(slide.getId()+"");
             }else{
                 suser.setSlideid(suser.getSlideid()+":"+slide.getId());
@@ -276,5 +282,14 @@ public class SController {
         }
         return RUtils.success(suser);
     }
+
+
+
+
+    private String getServerIPPort(HttpServletRequest request) {
+        //+ ":" + request.getServerPort()
+        return request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
+    }
+
 
 }

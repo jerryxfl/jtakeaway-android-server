@@ -34,14 +34,16 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
 @Api(description = "用户信息相关")
 @RestController
 @RequestMapping("/U")
-@SuppressWarnings("all")
+//@SuppressWarnings("all")
 public class UController {
     @Autowired
     private JavaMailSender javaMailSender;
@@ -254,7 +256,7 @@ public class UController {
             case 3:
                 return RUtils.Err(Renum.NO_WALLTE.getCode(), Renum.NO_WALLTE.getMsg());
         }
-        wallet.setBalance(wallet.getBalance().add(BigDecimal.valueOf(money)));
+        wallet.setBalance(wallet.getBalance()+money);
         walletServiceImp.getRepository().save(wallet);
         return RUtils.success();
     }
@@ -288,7 +290,7 @@ public class UController {
                 return RUtils.Err(Renum.NO_WALLTE.getCode(), Renum.NO_WALLTE.getMsg());
         }
         if (wallet.getPaymentpassword().equals(tmoney.getPayPassword())) {
-            wallet.setBalance(wallet.getBalance().subtract(BigDecimal.valueOf(tmoney.getMoney())));
+            wallet.setBalance(wallet.getBalance()-tmoney.getMoney());
             walletServiceImp.getRepository().save(wallet);
             return RUtils.success();
         } else {
@@ -580,5 +582,29 @@ public class UController {
         }
         return RUtils.success();
     }
+    @Resource
+    CommentServiceImp commentServiceImp;
+
+
+
+    @ApiOperation("发布商家评论")
+    @GetMapping("/send_shop_comment")
+    public Result send_shop_comment(int suserid,String content) {
+        String jwt = request.getHeader("jwt");
+        Claims claims = jwtUtils.parseJWT(jwt);
+        String subject = claims.getSubject();
+        JSONObject jsonObject = JSONObject.parseObject(subject);
+        User user = userServiceImp.getRepository().findByAccount(JSONObject.toJavaObject(jsonObject, User.class).getAccount());
+        Suser suser = suserServiceImp.getRepository().findById(suserid).orElse(null);
+        if(suser == null) throw new NullPointerException();
+        Comment comment = new Comment();
+        comment.setUser(user);
+        comment.setSuser(suser);
+        comment.setContent(content);
+        comment.setCreatetime(new Timestamp(new Date().getTime()));
+        Comment save = commentServiceImp.getRepository().save(comment);
+        return RUtils.success(save);
+    }
+
 
 }
