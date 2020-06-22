@@ -1,6 +1,7 @@
 package com.jerry.jtakeaway.controller;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.jerry.jtakeaway.bean.*;
 import com.jerry.jtakeaway.exception.JException;
 import com.jerry.jtakeaway.responseBean.ResponseUser;
@@ -103,18 +104,43 @@ public class GController {
         for (Suser s : susers) {
             Wallet wallet = walletRepository.getRepository().findById(s.getWalletid()).orElse(null);
             if (wallet != null) {
-                String[] deals = wallet.getTransactionid().split(":");
-                if (deals.length >= 3) {
-                    s.setWalletid(null);
-                    s.setSlideid(null);
-                    s.setShopaddress(null);
-                    s.setIdcard("");
-                    s.setShoplicense("");
-                    rSusers.add(s);
+                if (wallet.getTransactionid() != null) {
+                    String[] deals = wallet.getTransactionid().split(":");
+                    if (deals.length >= 3) {
+                        s.setWalletid(null);
+                        s.setIdcard("");
+                        s.setShoplicense("");
+                        rSusers.add(s);
+                    }
                 }
             }
         }
         return RUtils.success(rSusers);
+    }
+
+    @ApiOperation("获取热门商家随机菜单")
+    @GetMapping("/hot_shop_menu")
+    public Result hot_shop_menu() {
+        List<Suser> susers = new ArrayList<>();
+        List<Menus> rMenus = new ArrayList<>();
+        susers = suserServiceImp.getRepository().findAll();
+        for (Suser s : susers) {
+            Wallet wallet = walletRepository.getRepository().findById(s.getWalletid()).orElse(null);
+            if (wallet != null) {
+                if (wallet.getTransactionid() != null) {
+                    String[] deals = wallet.getTransactionid().split(":");
+                    if (deals.length >= 3) {
+                        List<Menus> m = new ArrayList<>();
+                        m = menusServiceImp.getRepository().findAll();
+                        Random random = new Random();
+                        int n = random.nextInt(m.size());
+                        Menus menu = m.get(n);
+                        rMenus.add(menu);
+                    }
+                }
+            }
+        }
+        return RUtils.success(rMenus);
     }
 
 
@@ -122,11 +148,9 @@ public class GController {
     @GetMapping("/five_level_shop")
     public Result five_level_shop(int size) {
         List<Suser> susers = new ArrayList<>();
-        susers = suserServiceImp.getRepository().FiveLevelShopList(size,size+10,4);
+        susers = suserServiceImp.getRepository().FiveLevelShopList(size, size + 10, 4);
         return RUtils.success(susers);
     }
-
-
 
 
     @ApiOperation("获取顶部轮播图")
@@ -164,28 +188,28 @@ public class GController {
         user.setPassword("");
         switch (user.getUsertype()) {
             case 0:
-                ResponseUser<Nuser> responseUser = new ResponseUser();
+                ResponseUser responseUser = new ResponseUser();
                 Nuser nuser = nusersServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
-                if(nuser==null)throw new NullPointerException();
-                responseUser.setUserdetails(nuser);
+                if (nuser == null) throw new NullPointerException();
+                responseUser.setUserdetails(JSONObject.toJSONString(nuser));
                 return RUtils.success(responseUser);
             case 1:
-                ResponseUser<Suser> responseUser1 = new ResponseUser();
+                ResponseUser responseUser1 = new ResponseUser();
                 Suser suser = suserServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
-                if(suser==null)throw new NullPointerException();
-                responseUser1.setUserdetails(suser);
+                if (suser == null) throw new NullPointerException();
+                responseUser1.setUserdetails(JSONObject.toJSONString(suser));
                 return RUtils.success(responseUser1);
             case 2:
-                ResponseUser<Huser> responseUser2 = new ResponseUser<Huser>();
+                ResponseUser responseUser2 = new ResponseUser();
                 Huser huser = huserServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
-                if(huser==null) throw new NullPointerException();
-                responseUser2.setUserdetails(huser);
+                if (huser == null) throw new NullPointerException();
+                responseUser2.setUserdetails(JSONObject.toJSONString(huser));
                 return RUtils.success(responseUser2);
             case 3:
-                ResponseUser<Xuser> responseUser3 = new ResponseUser<Xuser>();
+                ResponseUser responseUser3 = new ResponseUser();
                 Xuser xuser = xuserServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
-                if (xuser != null)throw new NullPointerException();
-                responseUser3.setUserdetails(xuser);
+                if (xuser != null) throw new NullPointerException();
+                responseUser3.setUserdetails(JSONObject.toJSONString(xuser));
                 return RUtils.success(responseUser3);
             default:
                 throw new IllegalArgumentException();
@@ -205,30 +229,29 @@ public class GController {
 
     @ApiOperation("获得指定商家一部分菜单 size")
     @GetMapping("/g_shops_menus")
-    public Result g_shops_menus(int shopid, int size){
+    public Result g_shops_menus(int shopid, int size) {
         Suser suser = suserServiceImp.getRepository().findById(shopid).orElse(null);
-        if(suser==null)throw new NullPointerException();
+        if (suser == null) throw new NullPointerException();
         List<Menus> menus = new ArrayList<Menus>();
-        menus = menusServiceImp.getRepository().getAll(size,size+15,suser.getId());
+        menus = menusServiceImp.getRepository().getAll(size, size + 15, suser.getId());
         return RUtils.success(menus);
     }
 
 
-
     @ApiOperation("获得热门菜单")
     @GetMapping("/g_hot_menus")
-    public Result g_hot_menus(){
+    public Result g_hot_menus() {
         List<Menus> menus = new ArrayList<Menus>();
         List<Menus> rMenus = new ArrayList<Menus>();
         menus = menusServiceImp.getRepository().findAll();
         Random rand = new Random();
-        if(menus.size()>10){
+        if (menus.size() > 10) {
             for (int i = 0; i < 10; i++) {
                 Menus menu = menus.get(rand.nextInt(menus.size()));
                 rMenus.add(menu);
                 menus.remove(menu);
             }
-        }else{
+        } else {
             for (int i = 0; i < menus.size(); i++) {
                 Menus menu = menus.get(rand.nextInt(menus.size()));
                 rMenus.add(menu);
@@ -237,4 +260,19 @@ public class GController {
         }
         return RUtils.success(rMenus);
     }
+
+
+    @ApiOperation("获取商家轮播图")
+    @GetMapping("/shop_slides")
+    public Result shop_slides(int suserid) {
+        List<Slide> slides = new ArrayList<Slide>();
+        List<Slide> rSlides = new ArrayList<Slide>();
+        slides = slideServiceImp.getRepository().findAll();
+        for (Slide slide : slides) {
+            User user = userServiceImp.getRepository().findById(slide.getUserid());
+            if (user != null) if (user.getUsertype() == 1) if (user.getUserdetailsid() == suserid) rSlides.add(slide);
+        }
+        return RUtils.success(rSlides);
+    }
+
 }

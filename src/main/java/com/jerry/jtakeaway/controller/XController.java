@@ -97,8 +97,8 @@ public class XController {
 //        User user = (User) params[0];
 //        Xuser xuser = (Xuser) params[1];
 //        if(xuser==null)throw new NullPointerException();
-//        Slide save = slideServiceImp.getRepository().save(slide);
-//        return RUtils.success(save);
+//        Slide saveAndFlush = slideServiceImp.getRepository().saveAndFlush(slide);
+//        return RUtils.success(saveAndFlush);
 //    }
 
 //    @ApiOperation("修改轮播图       slide")
@@ -110,8 +110,8 @@ public class XController {
 //        if(xuser==null)throw new NullPointerException();
 //        if(slide==null)throw new NullPointerException();
 //        if(slide.getUserid()!=user.getId())throw new IllegalArgumentException();
-//        Slide save = slideServiceImp.getRepository().save(slide);
-//        return RUtils.success(save);
+//        Slide saveAndFlush = slideServiceImp.getRepository().saveAndFlush(slide);
+//        return RUtils.success(saveAndFlush);
 //    }
 
 
@@ -124,8 +124,8 @@ public class XController {
         if(xuser==null)throw new NullPointerException();
         Broadcasts broadcasts = new Broadcasts();
         broadcasts.setContent(content);
-        Broadcasts save = broadcastServiceImp.getRepository().save(broadcasts);
-        return RUtils.success(save);
+        Broadcasts saveAndFlush = broadcastServiceImp.getRepository().saveAndFlush(broadcasts);
+        return RUtils.success(saveAndFlush);
     }
 
 
@@ -174,7 +174,7 @@ public class XController {
             slide = new Slide();
             slide.setUserid(user.getId());
             slide.setImg(remoteaddr);
-            slide = slideServiceImp.getRepository().save(slide);
+            slide = slideServiceImp.getRepository().saveAndFlush(slide);
         }catch(Exception e){
             throw e;
         }

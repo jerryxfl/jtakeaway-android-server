@@ -1,6 +1,7 @@
 package com.jerry.jtakeaway.utils;
 
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
+import org.apache.http.util.TextUtils;
 import org.junit.Test;
 
 import javax.crypto.Cipher;
@@ -9,6 +10,7 @@ import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
 public class EncryptUtil {
@@ -292,14 +294,35 @@ public class EncryptUtil {
         return new String(Base64.decode(res));
     }
 
+    public String MD52(String string) {
+        if (TextUtils.isEmpty(string)) {
+            return "";
+        }
+        MessageDigest md5 = null;
+        try {
+            md5 = MessageDigest.getInstance(MD5);
+            byte[] bytes = md5.digest(string.getBytes());
+            StringBuilder result = new StringBuilder();
+            for (byte b : bytes) {
+                String temp = Integer.toHexString(b & 0xff);
+                if (temp.length() == 1) {
+                    temp = "0" + temp;
+                }
+                result.append(temp);
+            }
+            return result.toString();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
 
     @Test
     public void contextLoads() {
         String text = "265211";
-        System.out.println(EncryptUtil.getInstance().MD5(text));
-        System.out.println(EncryptUtil.getInstance().MD5(text));
-        System.out.println(EncryptUtil.getInstance().MD5(text));
-        System.out.println(EncryptUtil.getInstance().MD5(text));
+        System.out.println(EncryptUtil.getInstance().MD52(text));
+
     }
 
 

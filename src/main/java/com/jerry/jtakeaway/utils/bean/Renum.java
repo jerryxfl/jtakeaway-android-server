@@ -31,6 +31,7 @@ public enum Renum {
     S_CODE_ERROR(18,"验证码已错误"),
     OLD_PWD_ERROR(19,"支付密码错误"),
     CONPON_WAM(20,"优惠卷已领完"),
+    CONPON_USE(21,"优惠卷已使用"),
     ;
     private Integer code;
     private String msg;

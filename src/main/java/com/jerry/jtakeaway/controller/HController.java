@@ -99,8 +99,8 @@ public class HController {
         if(orde.getSuserid()!=suser.getId())throw new IllegalArgumentException();
         orde.setStatusid(5);
         orde.setHuserid(huser.getId());
-        Orde save = ordeServiceImp.getRepository().save(orde);
-        return RUtils.success(save);
+        Orde saveAndFlush = ordeServiceImp.getRepository().saveAndFlush(orde);
+        return RUtils.success(saveAndFlush);
     }
 
 
@@ -117,8 +117,8 @@ public class HController {
         if(orde==null)throw new NullPointerException();
         if(orde.getSuserid()!=suser.getId())throw new IllegalArgumentException();
         orde.setStatusid(6);
-        Orde save = ordeServiceImp.getRepository().save(orde);
-        return RUtils.success(save);
+        Orde saveAndFlush = ordeServiceImp.getRepository().saveAndFlush(orde);
+        return RUtils.success(saveAndFlush);
     }
 
 

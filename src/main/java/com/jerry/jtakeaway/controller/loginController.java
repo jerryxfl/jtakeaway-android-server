@@ -2,8 +2,9 @@ package com.jerry.jtakeaway.controller;
 
 
 import com.alibaba.fastjson.JSONObject;
-import com.jerry.jtakeaway.bean.User;
-import com.jerry.jtakeaway.service.imp.UserServiceImp;
+import com.jerry.jtakeaway.bean.*;
+import com.jerry.jtakeaway.responseBean.ResponseUser;
+import com.jerry.jtakeaway.service.imp.*;
 import com.jerry.jtakeaway.utils.JwtUtils;
 import com.jerry.jtakeaway.utils.RUtils;
 import com.jerry.jtakeaway.utils.RedisUtils;
@@ -34,8 +35,23 @@ public class loginController {
     @Resource
     JwtUtils jwtUtils;
 
+
+
     @Resource
     UserServiceImp userServiceImp;
+
+
+    @Resource
+    NuserServiceImp nusersServiceImp;
+
+    @Resource
+    SuserServiceImp suserServiceImp;
+
+    @Resource
+    HuserServiceImp huserServiceImp;
+
+    @Resource
+    XuserServiceImp xuserServiceImp;
 
     @ApiOperation("用户认证操作")
     @PostMapping("/jwtLogin")
@@ -54,7 +70,35 @@ public class loginController {
                         //是本人登录
                         User Quser = userServiceImp.getRepository().findByAccount(user.getAccount());
                         if(Quser.getPassword().equals(user.getPassword())){
-                            return RUtils.success();
+                            ResponseUser responseUser = new ResponseUser();
+                            responseUser.setId(Quser.getId());
+                            responseUser.setAccount(Quser.getAccount());
+                            responseUser.setPassword(Quser.getPassword());
+                            responseUser.setPhone(Quser.getPhone());
+                            responseUser.setEmail(Quser.getEmail());
+                            responseUser.setUseradvatar(Quser.getUseradvatar());
+                            responseUser.setUsernickname(Quser.getUsernickname());
+                            responseUser.setUsertype(Quser.getUsertype());
+                            if(Quser.getUsertype()==0){
+                                Nuser nuser = nusersServiceImp.getRepository().findById(Quser.getUserdetailsid()).orElse(null);
+                                responseUser.setUserdetails(JSONObject.toJSONString(nuser));
+                            }
+                            if(Quser.getUsertype()==1){
+                                Suser suser = suserServiceImp.getRepository().findById(Quser.getUserdetailsid()).orElse(null);
+                                responseUser.setUserdetails(JSONObject.toJSONString(suser));
+                            }
+                            if(Quser.getUsertype()==2){
+                                Huser huser = huserServiceImp.getRepository().findById(Quser.getUserdetailsid()).orElse(null);
+                                responseUser.setUserdetails(JSONObject.toJSONString(huser));
+                            }
+                            if(Quser.getUsertype()==3){
+                                Xuser xuser = xuserServiceImp.getRepository().findById(Quser.getUserdetailsid()).orElse(null);
+                                responseUser.setUserdetails(JSONObject.toJSONString(xuser));
+                            }
+                            JSONObject resultJson = new JSONObject();
+                            resultJson.put("jwt",jwt);
+                            resultJson.put("user",responseUser);
+                            return RUtils.success(resultJson.toJSONString());
                         }else{
                             return RUtils.Err(Renum.PWD_ERROE.getCode(),Renum.PWD_ERROE.getMsg());
                         }
@@ -102,11 +146,36 @@ public class loginController {
                     String jwt = jwtUtils.createJWT(json.toJSONString());
                     //存库
                     redisUtils.set(user.getAccount(), jwt);
-                    User resultUser = userServiceImp.getRepository().findByAccount(user.getAccount());
-                    resultUser.setPassword("");
+                    ResponseUser responseUser = new ResponseUser();
+                    responseUser.setId(qUser.getId());
+                    responseUser.setAccount(qUser.getAccount());
+                    responseUser.setPassword(qUser.getPassword());
+                    responseUser.setPhone(qUser.getPhone());
+                    responseUser.setEmail(qUser.getEmail());
+                    responseUser.setUseradvatar(qUser.getUseradvatar());
+                    responseUser.setUsernickname(qUser.getUsernickname());
+                    responseUser.setUsertype(qUser.getUsertype());
+                    if(qUser.getUsertype()==0){
+                        Nuser nuser = nusersServiceImp.getRepository().findById(qUser.getUserdetailsid()).orElse(null);
+                        responseUser.setUserdetails(JSONObject.toJSONString(nuser));
+                    }
+                    if(qUser.getUsertype()==1){
+                        Suser suser = suserServiceImp.getRepository().findById(qUser.getUserdetailsid()).orElse(null);
+                        responseUser.setUserdetails(JSONObject.toJSONString(suser));
+                    }
+                    if(qUser.getUsertype()==2){
+                        Huser huser = huserServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
+                        responseUser.setUserdetails(JSONObject.toJSONString(huser));
+                    }
+                    if(qUser.getUsertype()==3){
+                        Xuser xuser = xuserServiceImp.getRepository().findById(qUser.getUserdetailsid()).orElse(null);
+                        responseUser.setUserdetails(JSONObject.toJSONString(xuser));
+                    }
+
+
                     JSONObject resultJson = new JSONObject();
                     resultJson.put("jwt",jwt);
-                    resultJson.put("user",resultUser);
+                    resultJson.put("user",responseUser);
                     System.out.println("jwt --------:"+jwt);
                     return RUtils.success(resultJson.toJSONString());
                 }else{

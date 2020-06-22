@@ -17,6 +17,7 @@ public class Orde {
     private Integer huserid;
     private int statusid;
     private Double level;
+    private String uuid;
 
     @Id
     @Column(name = "ID")
@@ -115,5 +116,15 @@ public class Orde {
 
     public void setLevel(Double level) {
         this.level = level;
+    }
+
+    @Basic
+    @Column(name = "UUID")
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 }

@@ -10,6 +10,6 @@ import java.util.List;
 
 @Repository("UserConponDao")
 public interface UserConponRepository extends JpaRepository<Userconpon, Integer> {
-    Userconpon findByConponidAndNuserid(int conponid,int nuserid);
+    List<Userconpon> findByConponidAndNuserid(int conponid,int nuserid);
     List<Userconpon> findByNuserid(int nuserid);
 }

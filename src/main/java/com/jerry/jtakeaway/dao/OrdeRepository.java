@@ -23,4 +23,6 @@ public interface OrdeRepository extends JpaRepository<Orde, Integer> {
     @Query(value ="select * from (select * from orde limit ?1,?2) a where SUSERID = ?3",nativeQuery= true)
     List<Orde> getAllBySuserId(int start,int end,int suserid);
 
+
+    Orde findByUuid(String uuid);
 }

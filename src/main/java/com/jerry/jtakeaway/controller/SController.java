@@ -107,7 +107,7 @@ public class SController {
         Menus menus = menusServiceImp.getRepository().findById(menuid).orElse(null);
         if(menus==null)throw new NullPointerException();
         menus.setFoodstatus(1);
-        menusServiceImp.getRepository().save(menus);
+        menusServiceImp.getRepository().saveAndFlush(menus);
         return RUtils.success();
     }
 
@@ -119,7 +119,7 @@ public class SController {
         Suser suser = (Suser) params[1];
         if(suser==null)throw new NullPointerException();
         if(menus.getSuerid()!=suser.getId()) throw new IllegalArgumentException();
-        menusServiceImp.getRepository().save(menus);
+        menusServiceImp.getRepository().saveAndFlush(menus);
         return RUtils.success(menus);
     }
 
@@ -139,7 +139,7 @@ public class SController {
         calendar.add(calendar.DATE,1);//把日期往后增加一天.整数往后推,负数往前移动
         date=calendar.getTime();
         menus.setLowpricefailed(new Timestamp(date.getTime()));
-        menusServiceImp.getRepository().save(menus);
+        menusServiceImp.getRepository().saveAndFlush(menus);
         return RUtils.success(menus);
     }
 
@@ -148,8 +148,8 @@ public class SController {
     @GetMapping("/ts_menu")
     public Result ts_menu(HttpServletRequest request,Menus menus){
         menus.setFoodstatus(2);
-        Menus save = menusServiceImp.getRepository().save(menus);
-        return RUtils.success(save);
+        Menus saveAndFlush = menusServiceImp.getRepository().saveAndFlush(menus);
+        return RUtils.success(saveAndFlush);
     }
 
     @ApiOperation("上架菜单    menuid")
@@ -162,8 +162,8 @@ public class SController {
         Menus menus = menusServiceImp.getRepository().findByIdAndSuerid(menuid,suser.getId());
         if(menus==null) throw new NullPointerException();
         menus.setFoodstatus(0);
-        Menus save = menusServiceImp.getRepository().save(menus);
-        return RUtils.success(save);
+        Menus saveAndFlush = menusServiceImp.getRepository().saveAndFlush(menus);
+        return RUtils.success(saveAndFlush);
     }
 
 
@@ -189,7 +189,7 @@ public class SController {
                 }
             }
         }
-        suserServiceImp.getRepository().save(suser);
+        suserServiceImp.getRepository().saveAndFlush(suser);
         slideServiceImp.getRepository().delete(slide);
         return RUtils.success(suser);
     }
@@ -205,8 +205,8 @@ public class SController {
 //        String[] slides = suser.getSlideid().split(":");
 //        for (int i = 0; i < slides.length; i++) {
 //            if(slides[i].equals(slide.getId())){
-//                Slide save = slideServiceImp.getRepository().save(slide);
-//                return RUtils.success(save);
+//                Slide saveAndFlush = slideServiceImp.getRepository().saveAndFlush(slide);
+//                return RUtils.success(saveAndFlush);
 //            }
 //        }
 //        throw new IllegalArgumentException();
@@ -270,13 +270,13 @@ public class SController {
             slide = new Slide();
             slide.setUserid(user.getId());
             slide.setImg(remoteaddr);
-            slide = slideServiceImp.getRepository().save(slide);
+            slide = slideServiceImp.getRepository().saveAndFlush(slide);
             if(suser.getSlideid()==null||suser.getSlideid().equals("")){
                 suser.setSlideid(slide.getId()+"");
             }else{
                 suser.setSlideid(suser.getSlideid()+":"+slide.getId());
             }
-            suser = suserServiceImp.getRepository().save(suser);
+            suser = suserServiceImp.getRepository().saveAndFlush(suser);
         }catch(Exception e){
             throw e;
         }

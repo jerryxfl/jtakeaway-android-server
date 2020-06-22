@@ -3,7 +3,6 @@ package com.jerry.jtakeaway.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.jerry.jtakeaway.bean.*;
-import com.jerry.jtakeaway.dao.XUserRepository;
 import com.jerry.jtakeaway.exception.JException;
 import com.jerry.jtakeaway.requestBean.RequestsUser;
 import com.jerry.jtakeaway.requestBean.Tmoney;
@@ -31,14 +30,9 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 @Api(description = "用户信息相关")
 @RestController
@@ -93,7 +87,7 @@ public class UController {
         User user = userServiceImp.getRepository().findByAccount(JSONObject.toJavaObject(jsonObject, User.class).getAccount());
         switch (user.getUsertype()) {
             case 0:
-                ResponseUser<Nuser> nresponseUser = new ResponseUser<Nuser>();
+                ResponseUser nresponseUser = new ResponseUser();
                 nresponseUser.setId(user.getId());
                 nresponseUser.setAccount(user.getAccount());
                 nresponseUser.setPassword(user.getPassword());
@@ -102,10 +96,11 @@ public class UController {
                 nresponseUser.setUseradvatar(user.getUseradvatar());
                 nresponseUser.setUsernickname(user.getUsernickname());
                 nresponseUser.setUsertype(user.getUsertype());
-                nresponseUser.setUserdetails(nusersServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null));
+                Nuser nuser = nusersServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
+                nresponseUser.setUserdetails(JSONObject.toJSONString(nuser));
                 return RUtils.success(nresponseUser);
             case 1:
-                ResponseUser<Nuser> sresponseUser = new ResponseUser<Nuser>();
+                ResponseUser sresponseUser = new ResponseUser();
                 sresponseUser.setId(user.getId());
                 sresponseUser.setAccount(user.getAccount());
                 sresponseUser.setPassword(user.getPassword());
@@ -114,10 +109,11 @@ public class UController {
                 sresponseUser.setUseradvatar(user.getUseradvatar());
                 sresponseUser.setUsernickname(user.getUsernickname());
                 sresponseUser.setUsertype(user.getUsertype());
-                sresponseUser.setUserdetails(nusersServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null));
+                Suser suser = suserServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
+                sresponseUser.setUserdetails(JSONObject.toJSONString(suser));
                 return RUtils.success(sresponseUser);
             case 2:
-                ResponseUser<Nuser> hresponseUser = new ResponseUser<Nuser>();
+                ResponseUser hresponseUser = new ResponseUser();
                 hresponseUser.setId(user.getId());
                 hresponseUser.setAccount(user.getAccount());
                 hresponseUser.setPassword(user.getPassword());
@@ -126,10 +122,11 @@ public class UController {
                 hresponseUser.setUseradvatar(user.getUseradvatar());
                 hresponseUser.setUsernickname(user.getUsernickname());
                 hresponseUser.setUsertype(user.getUsertype());
-                hresponseUser.setUserdetails(nusersServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null));
+                Huser huser = huserServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
+                hresponseUser.setUserdetails(JSONObject.toJSONString(huser));
                 return RUtils.success(hresponseUser);
             case 3:
-                ResponseUser<Nuser> xresponseUser = new ResponseUser<Nuser>();
+                ResponseUser xresponseUser = new ResponseUser();
                 xresponseUser.setId(user.getId());
                 xresponseUser.setAccount(user.getAccount());
                 xresponseUser.setPassword(user.getPassword());
@@ -138,7 +135,8 @@ public class UController {
                 xresponseUser.setUseradvatar(user.getUseradvatar());
                 xresponseUser.setUsernickname(user.getUsernickname());
                 xresponseUser.setUsertype(user.getUsertype());
-                xresponseUser.setUserdetails(nusersServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null));
+                Xuser xuser = xuserServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
+                xresponseUser.setUserdetails(JSONObject.toJSONString(xuser));
                 return RUtils.success(xresponseUser);
             default:
                 throw new JException(Renum.UNKNOWN_ERROR.getCode(), Renum.UNKNOWN_ERROR.getMsg());
@@ -160,14 +158,14 @@ public class UController {
         user.setPhone(C_user.getPhone());
         user.setUseradvatar(C_user.getUseradvatar());
         user.setUsernickname(C_user.getUsernickname());
-        userServiceImp.getRepository().save(user);
+        userServiceImp.getRepository().saveAndFlush(user);
         switch (user.getUsertype()) {
             case 0:
                 Nuser nuser = nusersServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
                 Nuser c_nuser = (Nuser) C_user.getUserdetails();
                 nuser.setAddress(c_nuser.getAddress());
                 nuser.setPhone(c_nuser.getPhone());
-                nusersServiceImp.getRepository().save(nuser);
+                nusersServiceImp.getRepository().saveAndFlush(nuser);
                 return RUtils.success();
             case 1:
                 Suser suser = suserServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
@@ -177,7 +175,7 @@ public class UController {
                 suser.setShoplicense(c_suser.getShoplicense());
                 suser.setIdcard(c_suser.getIdcard());
                 suser.setName(c_suser.getName());
-                suserServiceImp.getRepository().save(suser);
+                suserServiceImp.getRepository().saveAndFlush(suser);
                 return RUtils.success();
             case 2:
                 Huser huser = huserServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
@@ -185,7 +183,7 @@ public class UController {
                 huser.setIdcard(c_huser.getIdcard());
                 huser.setName(c_huser.getName());
                 huser.setTransport(c_huser.getTransport());
-                huserServiceImp.getRepository().save(huser);
+                huserServiceImp.getRepository().saveAndFlush(huser);
                 return RUtils.success();
             default:
                 return RUtils.success();
@@ -257,7 +255,7 @@ public class UController {
                 return RUtils.Err(Renum.NO_WALLTE.getCode(), Renum.NO_WALLTE.getMsg());
         }
         wallet.setBalance(wallet.getBalance()+money);
-        walletServiceImp.getRepository().save(wallet);
+        walletServiceImp.getRepository().saveAndFlush(wallet);
         return RUtils.success();
     }
 
@@ -290,8 +288,9 @@ public class UController {
                 return RUtils.Err(Renum.NO_WALLTE.getCode(), Renum.NO_WALLTE.getMsg());
         }
         if (wallet.getPaymentpassword().equals(tmoney.getPayPassword())) {
+            if(wallet.getBalance()<tmoney.getMoney())return RUtils.Err(Renum.NO_MONEY.getCode(), Renum.NO_MONEY.getMsg());
             wallet.setBalance(wallet.getBalance()-tmoney.getMoney());
-            walletServiceImp.getRepository().save(wallet);
+            walletServiceImp.getRepository().saveAndFlush(wallet);
             return RUtils.success();
         } else {
             return RUtils.Err(Renum.PAYPAS_FAIL.getCode(), Renum.PAYPAS_FAIL.getMsg());
@@ -309,7 +308,7 @@ public class UController {
         JSONObject jsonObject = JSONObject.parseObject(subject);
         User user = userServiceImp.getRepository().findByAccount(JSONObject.toJavaObject(jsonObject, User.class).getAccount());
         Wallet wallet = null;
-        List<Transaction> transactions = new ArrayList<>();
+        List<Jtransaction> transactions = new ArrayList<>();
         switch (user.getUsertype()) {
             case 0:
                 Nuser nuser = nusersServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
@@ -334,7 +333,7 @@ public class UController {
         } else {
             String[] tIds = wallet.getTransactionid().split(":");
             for (int i = 0; i < tIds.length; i++) {
-                Transaction transaction = transactionServiceImp.getRepository().findById(Integer.valueOf(tIds[i])).orElse(null);
+                Jtransaction transaction = transactionServiceImp.getRepository().findById(Integer.valueOf(tIds[i])).orElse(null);
                 if (transaction != null) transactions.add(transaction);
             }
             return RUtils.success(transactions);
@@ -438,7 +437,7 @@ public class UController {
         else {
             if (changePay.getOldPayPassword().equals(wallet.getPaymentpassword())) {
                 wallet.setPaymentpassword(changePay.getNowPayPassword());
-                walletServiceImp.getRepository().save(wallet);
+                walletServiceImp.getRepository().saveAndFlush(wallet);
                 return RUtils.success();
             } else {
                 return RUtils.Err(Renum.OLD_PWD_ERROR.getCode(), Renum.OLD_PWD_ERROR.getMsg());
@@ -447,36 +446,37 @@ public class UController {
     }
 
 
-    @ApiOperation("开通钱包 ")
+    @ApiOperation("开通钱包 传入支付密码")
     @GetMapping("/o_wallet")
-    public Result o_wallet(HttpServletRequest request) {
+    public Result o_wallet(HttpServletRequest request,String payPassword) {
         String jwt = request.getHeader("jwt");
         Claims claims = jwtUtils.parseJWT(jwt);
         String subject = claims.getSubject();
         JSONObject jsonObject = JSONObject.parseObject(subject);
         User user = userServiceImp.getRepository().findByAccount(JSONObject.toJavaObject(jsonObject, User.class).getAccount());
         Wallet wallet = new Wallet();
+        wallet.setPaymentpassword(payPassword);
         switch (user.getUsertype()) {
             case 0:
                 Nuser nuser = nusersServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
                 if (nuser == null) throw new NullPointerException();
-                Wallet wallet1 = walletServiceImp.getRepository().save(wallet);
+                Wallet wallet1 = walletServiceImp.getRepository().saveAndFlush(wallet);
                 nuser.setWallet(wallet1.getId());
-                Nuser nuser1 = nusersServiceImp.getRepository().save(nuser);
+                Nuser nuser1 = nusersServiceImp.getRepository().saveAndFlush(nuser);
                 return RUtils.success(nuser1);
             case 1:
                 Suser suser = suserServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
                 if (suser == null) throw new NullPointerException();
-                Wallet wallet2 = walletServiceImp.getRepository().save(wallet);
+                Wallet wallet2 = walletServiceImp.getRepository().saveAndFlush(wallet);
                 suser.setWalletid(wallet2.getId());
-                Suser suser1 = suserServiceImp.getRepository().save(suser);
+                Suser suser1 = suserServiceImp.getRepository().saveAndFlush(suser);
                 return RUtils.success(suser1);
             case 2:
                 Huser huser = huserServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
                 if (huser == null) throw new NullPointerException();
-                Wallet wallet3 = walletServiceImp.getRepository().save(wallet);
+                Wallet wallet3 = walletServiceImp.getRepository().saveAndFlush(wallet);
                 huser.setWalletid(wallet3.getId());
-                Huser huser1 = huserServiceImp.getRepository().save(huser);
+                Huser huser1 = huserServiceImp.getRepository().saveAndFlush(huser);
                 return RUtils.success(huser1);
             case 3:
                 return RUtils.Err(Renum.NO_WALLTE.getCode(), Renum.NO_WALLTE.getMsg());
@@ -521,8 +521,8 @@ public class UController {
         JSONObject jsonObject = JSONObject.parseObject(subject);
         User user = userServiceImp.getRepository().findByAccount(JSONObject.toJavaObject(jsonObject, User.class).getAccount());
         address.setUser(user);
-        Address save = addressServiceImp.getRepository().save(address);
-        return RUtils.success(save);
+        Address saveAndFlush = addressServiceImp.getRepository().saveAndFlush(address);
+        return RUtils.success(saveAndFlush);
     }
 
     @ApiOperation("修改地址")
@@ -534,8 +534,8 @@ public class UController {
         JSONObject jsonObject = JSONObject.parseObject(subject);
         User user = userServiceImp.getRepository().findByAccount(JSONObject.toJavaObject(jsonObject, User.class).getAccount());
         if (address.getUser().getId() != user.getId()) throw new IllegalArgumentException();
-        Address save = addressServiceImp.getRepository().save(address);
-        return RUtils.success(save);
+        Address saveAndFlush = addressServiceImp.getRepository().saveAndFlush(address);
+        return RUtils.success(saveAndFlush);
     }
 
     @ApiOperation("删除地址")
@@ -576,7 +576,7 @@ public class UController {
             System.out.println(file.getPath());
             String remoteaddr = "http://localhost:8080/api-0.1/advatar/"+user.getAccount()+"/"+originalFilename;
             user.setUseradvatar(remoteaddr);
-            userServiceImp.getRepository().save(user);
+            userServiceImp.getRepository().saveAndFlush(user);
         }catch(Exception e){
             throw e;
         }
@@ -602,8 +602,8 @@ public class UController {
         comment.setSuser(suser);
         comment.setContent(content);
         comment.setCreatetime(new Timestamp(new Date().getTime()));
-        Comment save = commentServiceImp.getRepository().save(comment);
-        return RUtils.success(save);
+        Comment saveAndFlush = commentServiceImp.getRepository().saveAndFlush(comment);
+        return RUtils.success(saveAndFlush);
     }
 
 
