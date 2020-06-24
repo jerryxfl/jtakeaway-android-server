@@ -1,9 +1,6 @@
 package com.jerry.jtakeaway.bean;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.Objects;
@@ -20,6 +17,7 @@ public class Coupon {
 //    {"conponprice":0.2,"conponfailuretime":"2020-06-04T00:25:57.000+00:00","id":1,"conpondesc":"对所有商家有用"}
     @Id
     @Column(name = "ID")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public int getId() {
         return id;
     }

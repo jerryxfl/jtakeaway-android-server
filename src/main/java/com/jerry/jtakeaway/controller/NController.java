@@ -268,7 +268,8 @@ public class NController {
                         transaction.setUserid(user.getId());
                         transaction.setTargetuserid(sUser.getId());
                         transaction.setUuid(uuid);
-                        transaction = transactionServiceImp.getRepository().saveAndFlush(transaction);
+                        transactionServiceImp.getRepository().saveAndFlush(transaction);
+                        transaction = transactionServiceImp.getRepository().findByUuid(uuid);
                         if (wallet.getTransactionid()==null||"".equals(wallet.getTransactionid())) {
                             wallet.setTransactionid(String.valueOf(transaction.getId()));
                         } else {
@@ -292,7 +293,8 @@ public class NController {
                         shopTransaction.setTargetuserid(user.getId());
                         String uuid2 = UUID.randomUUID().toString();
                         shopTransaction.setUuid(uuid2);
-                        shopTransaction = transactionServiceImp.getRepository().saveAndFlush(shopTransaction);
+                        transactionServiceImp.getRepository().saveAndFlush(shopTransaction);
+                        shopTransaction = transactionServiceImp.getRepository().findByUuid(uuid2);
                         if (shopWallet.getTransactionid()==null||shopWallet.getTransactionid().equals("")) {
                             shopWallet.setTransactionid(String.valueOf(shopTransaction.getId()));
                         } else {
@@ -418,7 +420,8 @@ public class NController {
                         transaction.setUserid(user.getId());
                         transaction.setTargetuserid(sUser.getId());
                         transaction.setUuid(uuid);
-                        transaction = transactionServiceImp.getRepository().saveAndFlush(transaction);
+                        transactionServiceImp.getRepository().saveAndFlush(transaction);
+                        transaction = transactionServiceImp.getRepository().findByUuid(uuid);
                         System.out.println("第一次保存");
                         if (wallet.getTransactionid().equals("")) {
                             wallet.setTransactionid(String.valueOf(transaction.getId()));
@@ -443,7 +446,8 @@ public class NController {
                         shopTransaction.setTargetuserid(user.getId());
                         String uuid2 = UUID.randomUUID().toString();
                         shopTransaction.setUuid(uuid2);
-                        shopTransaction = transactionServiceImp.getRepository().saveAndFlush(shopTransaction);
+                        transactionServiceImp.getRepository().saveAndFlush(shopTransaction);
+                        shopTransaction = transactionServiceImp.getRepository().findByUuid(uuid2);
                         System.out.println("第三次保存");
                         if (shopWallet.getTransactionid()==null||"".equals(shopWallet.getTransactionid())) {
                             shopWallet.setTransactionid(String.valueOf(shopTransaction.getId()));

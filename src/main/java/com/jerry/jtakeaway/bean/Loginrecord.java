@@ -1,14 +1,26 @@
 package com.jerry.jtakeaway.bean;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.Objects;
 
 @Entity
-public class Nuser {
+public class Loginrecord {
     private int id;
-    private String phone;
+    private Timestamp lotintime;
     private String address;
-    private Integer wallet;
+    private User user;
+
+    @ManyToOne(fetch=FetchType.EAGER)
+    @JoinColumn(name = "userid")
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
 
     @Id
     @Column(name = "ID")
@@ -22,13 +34,13 @@ public class Nuser {
     }
 
     @Basic
-    @Column(name = "PHONE")
-    public String getPhone() {
-        return phone;
+    @Column(name = "LOTINTIME")
+    public Timestamp getLotintime() {
+        return lotintime;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
+    public void setLotintime(Timestamp lotintime) {
+        this.lotintime = lotintime;
     }
 
     @Basic
@@ -41,29 +53,18 @@ public class Nuser {
         this.address = address;
     }
 
-    @Basic
-    @Column(name = "WALLET")
-    public Integer getWallet() {
-        return wallet;
-    }
-
-    public void setWallet(Integer wallet) {
-        this.wallet = wallet;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Nuser nuser = (Nuser) o;
-        return id == nuser.id &&
-                Objects.equals(phone, nuser.phone) &&
-                Objects.equals(address, nuser.address) &&
-                Objects.equals(wallet, nuser.wallet);
+        Loginrecord that = (Loginrecord) o;
+        return id == that.id &&
+                Objects.equals(lotintime, that.lotintime) &&
+                Objects.equals(address, that.address);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, phone, address, wallet);
+        return Objects.hash(id, lotintime, address);
     }
 }

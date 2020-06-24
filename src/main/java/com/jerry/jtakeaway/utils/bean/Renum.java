@@ -28,10 +28,12 @@ public enum Renum {
     USER_NO_CONPON(15,"您未领取此优惠卷"),
     CANT_SEND_RE(16,"不能在短时间内重复获得发送邮件"),
     S_CODE_FAIL(17,"验证码已失效"),
-    S_CODE_ERROR(18,"验证码已错误"),
+    S_CODE_ERROR(18,"验证码错误"),
     OLD_PWD_ERROR(19,"支付密码错误"),
     CONPON_WAM(20,"优惠卷已领完"),
     CONPON_USE(21,"优惠卷已使用"),
+    EMAIL_FAILED(22,"邮箱无效"),
+    FILE_FAILED(23,"文件上传失败"),
     ;
     private Integer code;
     private String msg;

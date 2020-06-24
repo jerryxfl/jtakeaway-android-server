@@ -6,10 +6,13 @@ import com.jerry.jtakeaway.bean.*;
 import com.jerry.jtakeaway.service.imp.*;
 import com.jerry.jtakeaway.utils.JwtUtils;
 import com.jerry.jtakeaway.utils.RUtils;
+import com.jerry.jtakeaway.utils.ServerConfig;
+import com.jerry.jtakeaway.utils.bean.Renum;
 import com.jerry.jtakeaway.utils.bean.Result;
 import io.jsonwebtoken.Claims;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.*;
@@ -242,32 +245,70 @@ public class SController {
 
     @Resource
     HttpSession session;
+    @Value(value = "${web.resources-path}")
+    private String webResourcesPath;
 
-
+//    @ApiOperation("上传轮播图片")
+//    @PostMapping("/u_sslide")
+//    public Result u_slide(@RequestParam("file") MultipartFile mfile) throws IOException {
+//        Object[] params = parseSUER(request);
+//        User user = (User) params[0];
+//        Suser suser = (Suser) params[1];
+//
+//        System.out.println("有文件上传");
+//        if(mfile.isEmpty())throw new NullPointerException();
+//
+//        String originalFilename = mfile.getOriginalFilename();
+//
+//        File file = null;
+//        Slide slide = null;
+//        try{
+//            File path = new File(ResourceUtils.getURL("classpath:").getPath());
+//            File upload = new File(path.getAbsolutePath(), "static"+File.separator+"slide"+File.separator+user.getAccount()+File.separator);
+//            if (!upload.exists()) upload.mkdirs();
+//            String uploadPath = upload.getPath() + File.separator;
+//            file = new File(uploadPath + originalFilename);
+//            mfile.transferTo(file);
+//            System.out.println(file.getPath());
+//            String remoteaddr = "http://localhost:8080/api-0.1/slide/"+user.getAccount()+"/"+originalFilename;
+//            slide = new Slide();
+//            slide.setUserid(user.getId());
+//            slide.setImg(remoteaddr);
+//            slide = slideServiceImp.getRepository().saveAndFlush(slide);
+//            if(suser.getSlideid()==null||suser.getSlideid().equals("")){
+//                suser.setSlideid(slide.getId()+"");
+//            }else{
+//                suser.setSlideid(suser.getSlideid()+":"+slide.getId());
+//            }
+//            suser = suserServiceImp.getRepository().saveAndFlush(suser);
+//        }catch(Exception e){
+//            throw e;
+//        }
+//        return RUtils.success(suser);
+//    }
+    @Resource
+    ServerConfig serverConfig;
     @ApiOperation("上传轮播图片")
-    @GetMapping("/u_sslide")
-    public Result u_slide(@RequestParam("file") MultipartFile mfile) throws IOException {
+    @PostMapping("/u_sslide")
+    public Result u_slide(@RequestParam("file") MultipartFile file) throws IOException {
         Object[] params = parseSUER(request);
         User user = (User) params[0];
         Suser suser = (Suser) params[1];
-
         System.out.println("有文件上传");
-        if(mfile.isEmpty())throw new NullPointerException();
+        String fileName = file.getOriginalFilename();
+        System.out.println("文件名:"+fileName);
 
-        String originalFilename = mfile.getOriginalFilename();
+        File dest = new File(webResourcesPath+File.separator+"slide"+File.separator+user.getAccount()+fileName);
+        System.out.println("文件路径:"+dest.getPath());
 
-        File file = null;
-        Slide slide = null;
+        if(!dest.getParentFile().exists()){
+            dest.getParentFile().mkdirs();
+        }
         try{
-            File path = new File(ResourceUtils.getURL("classpath:").getPath());
-            File upload = new File(path.getAbsolutePath(), "static/slide/"+user.getAccount()+"/");
-            if (!upload.exists()) upload.mkdirs();
-            String uploadPath = upload.getPath() + "\\";
-            file = new File(uploadPath + originalFilename);
-            mfile.transferTo(file);
-            System.out.println(file.getPath());
-            String remoteaddr = "http://localhost:8080/api-0.1/slide/"+user.getAccount()+"/"+originalFilename;
-            slide = new Slide();
+            file.transferTo(dest);
+            String remoteaddr = serverConfig.getUrl()+"slide/"+user.getAccount()+"/"+fileName;
+
+            Slide slide = new Slide();
             slide.setUserid(user.getId());
             slide.setImg(remoteaddr);
             slide = slideServiceImp.getRepository().saveAndFlush(slide);
@@ -277,13 +318,11 @@ public class SController {
                 suser.setSlideid(suser.getSlideid()+":"+slide.getId());
             }
             suser = suserServiceImp.getRepository().saveAndFlush(suser);
-        }catch(Exception e){
-            throw e;
+            return RUtils.success(suser);
+        }catch (Exception e) {
+            return RUtils.Err(Renum.FILE_FAILED.getCode(), Renum.FILE_FAILED.getMsg());
         }
-        return RUtils.success(suser);
     }
-
-
 
 
     private String getServerIPPort(HttpServletRequest request) {

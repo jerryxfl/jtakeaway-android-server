@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.sql.Timestamp;
+import java.util.Date;
 
 
 @Api(description = "登录 登出")
@@ -35,7 +37,8 @@ public class loginController {
     @Resource
     JwtUtils jwtUtils;
 
-
+    @Resource
+    LoginRecordServiceImp loginRecordServiceImp;
 
     @Resource
     UserServiceImp userServiceImp;
@@ -70,6 +73,13 @@ public class loginController {
                         //是本人登录
                         User Quser = userServiceImp.getRepository().findByAccount(user.getAccount());
                         if(Quser.getPassword().equals(user.getPassword())){
+                            Loginrecord loginrecord = new Loginrecord();
+                            loginrecord.setAddress("绵阳");
+                            loginrecord.setLotintime(new Timestamp(new Date().getTime()));
+                            loginrecord.setUser(Quser);
+                            loginRecordServiceImp.getRepository().save(loginrecord);
+
+
                             ResponseUser responseUser = new ResponseUser();
                             responseUser.setId(Quser.getId());
                             responseUser.setAccount(Quser.getAccount());
@@ -140,6 +150,12 @@ public class loginController {
             User qUser = userServiceImp.getRepository().findByAccount(user.getAccount());
             if(qUser!=null){
                 if(user.getPassword().equals(qUser.getPassword())){
+                    Loginrecord loginrecord = new Loginrecord();
+                    loginrecord.setAddress("绵阳");
+                    loginrecord.setLotintime(new Timestamp(new Date().getTime()));
+                    loginrecord.setUser(qUser);
+                    loginRecordServiceImp.getRepository().save(loginrecord);
+
                     JSONObject json = new JSONObject();
                     json.put("account",user.getAccount());
                     json.put("password",user.getPassword());

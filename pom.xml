@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.jerry</groupId>
     <artifactId>jtakeaway</artifactId>
-    <version>0.0.6-release</version>
+    <version>0.1.0-release</version>
     <name>jtakeaway</name>
     <description>Demo project for Spring Boot</description>
 
@@ -93,7 +93,22 @@
         <dependency>
             <groupId>io.github.swagger2markup</groupId>
             <artifactId>swagger2markup</artifactId>
-            <version>1.3.3</version>
+            <version>1.3.1</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>jackson-coreutils</artifactId>
+                    <groupId>com.github.fge</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>guava</artifactId>
+                    <groupId>com.google.guava</groupId>
+                </exclusion>
+                <!-- 排除mail包冲突，避免发送邮件失败 -->
+                <exclusion>
+                    <groupId>javax.mail</groupId>
+                    <artifactId>mailapi</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
 
@@ -136,6 +151,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
+
     </dependencies>
 
     <build>
