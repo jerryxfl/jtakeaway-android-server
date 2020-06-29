@@ -18,4 +18,6 @@ public interface MenusRepository extends JpaRepository<Menus, Integer> {
 
     Menus findByIdAndSuerid(int id, int suserid);
 
+    List<Menus> findBySuerid(int suserid);
+
 }

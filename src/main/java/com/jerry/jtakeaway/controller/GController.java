@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.jerry.jtakeaway.bean.*;
 import com.jerry.jtakeaway.exception.JException;
 import com.jerry.jtakeaway.responseBean.ResponseUser;
+import com.jerry.jtakeaway.responseBean.ShopHaveMenu;
 import com.jerry.jtakeaway.service.imp.*;
 import com.jerry.jtakeaway.utils.RUtils;
 import com.jerry.jtakeaway.utils.bean.Renum;
@@ -143,15 +144,53 @@ public class GController {
         return RUtils.success(rMenus);
     }
 
+    @ApiOperation("获取热门一个随机菜单")
+    @GetMapping("/hot_shop_one_menu")
+    public Result hot_shop_one_menu(int suerId) {
+        Suser suser = suserServiceImp.getRepository().findById(suerId).orElse(null);
+        if(suser == null) throw new NullPointerException();
+        List<Menus> menus = menusServiceImp.getRepository().findBySuerid(suser.getId());
+        Random random = new Random();
+        int n = random.nextInt(menus.size());
+        Menus menu = menus.get(n);
+        return RUtils.success(menu);
+    }
+
 
     @ApiOperation("获取5星商家")
     @GetMapping("/five_level_shop")
     public Result five_level_shop(int size) {
+        List<ShopHaveMenu> shopHaveMenus = new ArrayList<>();
         List<Suser> susers = new ArrayList<>();
         susers = suserServiceImp.getRepository().FiveLevelShopList(size, size + 10, 4);
-        return RUtils.success(susers);
+        for (int i = 0; i < susers.size(); i++) {
+            List<Menus> menus = menusServiceImp.getRepository().findBySuerid(susers.get(i).getId());
+            if(!menus.isEmpty()){
+                shopHaveMenus.add(new ShopHaveMenu(susers.get(i), menus.get(0)));
+            }else{
+                shopHaveMenus.add(new ShopHaveMenu(susers.get(i), null));
+            }
+        }
+        return RUtils.success(shopHaveMenus);
     }
 
+
+    @ApiOperation("获取网红商店")
+    @GetMapping("/red_people_shop")
+    public Result red_people_shop(int size) {
+        List<ShopHaveMenu> shopHaveMenus = new ArrayList<>();
+        List<Suser> susers = new ArrayList<>();
+        susers = suserServiceImp.getRepository().FiveLevelShopList(size, size + 10, 1);
+        for (int i = 0; i < susers.size(); i++) {
+            List<Menus> menus = menusServiceImp.getRepository().findBySuerid(susers.get(i).getId());
+            if(!menus.isEmpty()){
+                shopHaveMenus.add(new ShopHaveMenu(susers.get(i), menus.get(0)));
+            }else{
+                shopHaveMenus.add(new ShopHaveMenu(susers.get(i), null));
+            }
+        }
+        return RUtils.success(shopHaveMenus);
+    }
 
     @ApiOperation("获取顶部轮播图")
     @GetMapping("/top_slides")
@@ -260,6 +299,8 @@ public class GController {
         }
         return RUtils.success(rMenus);
     }
+
+
 
 
     @ApiOperation("获取商家轮播图")

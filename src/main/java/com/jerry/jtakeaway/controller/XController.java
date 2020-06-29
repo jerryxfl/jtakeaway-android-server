@@ -153,38 +153,7 @@ public class XController {
     private String webResourcesPath;
 
 
-//    @ApiOperation("上传轮播图片")
-//    @PostMapping("/u_xslide")
-//    public Result u_slide(@RequestParam("file") MultipartFile mfile) throws IOException {
-//        Object[] params = parseSUER(request);
-//        User user = (User) params[0];
-//        Xuser xuser = (Xuser) params[1];
-//
-//        System.out.println("有文件上传");
-//        if(mfile.isEmpty())throw new NullPointerException();
-//
-//        String originalFilename = mfile.getOriginalFilename();
-//
-//        File file = null;
-//        Slide slide = null;
-//        try{
-//            File path = new File(ResourceUtils.getURL("classpath:").getPath());
-//            File upload = new File(path.getAbsolutePath(), "static"+File.separator+"slide"+File.separator+user.getAccount()+File.separator);
-//            if (!upload.exists()) upload.mkdirs();
-//            String uploadPath = upload.getPath() + File.separator;
-//            file = new File(uploadPath + originalFilename);
-//            mfile.transferTo(file);
-//            System.out.println(file.getPath());
-//            String remoteaddr = "http://localhost:8080/api-0.1/slide/"+user.getAccount()+"/"+originalFilename;
-//            slide = new Slide();
-//            slide.setUserid(user.getId());
-//            slide.setImg(remoteaddr);
-//            slide = slideServiceImp.getRepository().saveAndFlush(slide);
-//        }catch(Exception e){
-//            throw e;
-//        }
-//        return RUtils.success(slide);
-//    }
+
     @Resource
     ServerConfig serverConfig;
 

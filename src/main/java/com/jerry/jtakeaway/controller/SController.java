@@ -3,6 +3,7 @@ package com.jerry.jtakeaway.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.jerry.jtakeaway.bean.*;
+import com.jerry.jtakeaway.responseBean.ResponseOrder;
 import com.jerry.jtakeaway.service.imp.*;
 import com.jerry.jtakeaway.utils.JwtUtils;
 import com.jerry.jtakeaway.utils.RUtils;
@@ -198,23 +199,6 @@ public class SController {
     }
 
 
-//    @ApiOperation("修改商家轮播图       slide")
-//    @PostMapping("/alter_slide")
-//    public Result alter_menu(HttpServletRequest request,@RequestBody Slide slide){
-//        Object[] params = parseSUER(request);
-//        User user = (User) params[0];
-//        Suser suser = (Suser) params[1];
-//        if(suser==null)throw new NullPointerException();
-//        String[] slides = suser.getSlideid().split(":");
-//        for (int i = 0; i < slides.length; i++) {
-//            if(slides[i].equals(slide.getId())){
-//                Slide saveAndFlush = slideServiceImp.getRepository().saveAndFlush(slide);
-//                return RUtils.success(saveAndFlush);
-//            }
-//        }
-//        throw new IllegalArgumentException();
-//    }
-
     @ApiOperation("获得商家这边一部分的订单     size")
     @GetMapping("/g_sorders")
     public Result g_sorders(HttpServletRequest request,int size){
@@ -223,7 +207,7 @@ public class SController {
         Suser suser = (Suser) params[1];
         if(suser==null)throw new NullPointerException();
         List<Orde> ordeList = ordeServiceImp.getRepository().getAllBySuserId(size, size + 15, suser.getId());
-        return RUtils.success(ordeList);
+        return RUtils.success(getResponseOrders(ordeList,user));
     }
 
 
@@ -237,7 +221,9 @@ public class SController {
         Orde orde = ordeServiceImp.getRepository().findById(ordeid).orElse(null);
         if(orde==null)throw new NullPointerException();
         if(orde.getSuserid()!=suser.getId()) throw new IllegalArgumentException();
-        return RUtils.success(orde);
+        ArrayList<Orde> ordes = new ArrayList<>();
+        ordes.add(orde);
+        return RUtils.success(getResponseOrders(ordes,user));
     }
 
     @Resource
@@ -248,44 +234,6 @@ public class SController {
     @Value(value = "${web.resources-path}")
     private String webResourcesPath;
 
-//    @ApiOperation("上传轮播图片")
-//    @PostMapping("/u_sslide")
-//    public Result u_slide(@RequestParam("file") MultipartFile mfile) throws IOException {
-//        Object[] params = parseSUER(request);
-//        User user = (User) params[0];
-//        Suser suser = (Suser) params[1];
-//
-//        System.out.println("有文件上传");
-//        if(mfile.isEmpty())throw new NullPointerException();
-//
-//        String originalFilename = mfile.getOriginalFilename();
-//
-//        File file = null;
-//        Slide slide = null;
-//        try{
-//            File path = new File(ResourceUtils.getURL("classpath:").getPath());
-//            File upload = new File(path.getAbsolutePath(), "static"+File.separator+"slide"+File.separator+user.getAccount()+File.separator);
-//            if (!upload.exists()) upload.mkdirs();
-//            String uploadPath = upload.getPath() + File.separator;
-//            file = new File(uploadPath + originalFilename);
-//            mfile.transferTo(file);
-//            System.out.println(file.getPath());
-//            String remoteaddr = "http://localhost:8080/api-0.1/slide/"+user.getAccount()+"/"+originalFilename;
-//            slide = new Slide();
-//            slide.setUserid(user.getId());
-//            slide.setImg(remoteaddr);
-//            slide = slideServiceImp.getRepository().saveAndFlush(slide);
-//            if(suser.getSlideid()==null||suser.getSlideid().equals("")){
-//                suser.setSlideid(slide.getId()+"");
-//            }else{
-//                suser.setSlideid(suser.getSlideid()+":"+slide.getId());
-//            }
-//            suser = suserServiceImp.getRepository().saveAndFlush(suser);
-//        }catch(Exception e){
-//            throw e;
-//        }
-//        return RUtils.success(suser);
-//    }
     @Resource
     ServerConfig serverConfig;
     @ApiOperation("上传轮播图片")
@@ -324,6 +272,42 @@ public class SController {
         }
     }
 
+
+    @Resource
+    OrderStatusServiceImp orderStatusServiceImp;
+
+
+    private List<ResponseOrder> getResponseOrders(List<Orde> orders,User user){
+        List<ResponseOrder> responseOrders = new ArrayList<ResponseOrder>();
+        for (Orde o:orders) {
+            ResponseOrder responseOrder = new ResponseOrder();
+            if(o.getHuserid()!= null){
+                User huser = userServiceImp.getRepository().findByUsertypeAndUserdetailsid(2,o.getHuserid());
+                responseOrder.setHuser(huser);
+            }
+            User nuser = userServiceImp.getRepository().findByUsertypeAndUserdetailsid(0,o.getNuserid());
+            responseOrder.setNuser(nuser);
+            Orderstatus orderstatus = orderStatusServiceImp.getRepository().findById(o.getStatusid()).orElse(null);
+            if(orderstatus!= null){
+                responseOrder.setStatus(orderstatus);
+            }
+            JSONObject menuJsons = JSONObject.parseObject(o.getMenus());
+            for (Map.Entry<String, Object> entry : menuJsons.entrySet()) {
+                Menus mMenus = menusServiceImp.getRepository().findById(Integer.valueOf(entry.getKey())).orElse(null);
+                if(mMenus!= null){
+                    responseOrder.setMenus(mMenus);
+                }
+            }
+            responseOrder.setId(o.getId());
+            responseOrder.setCreatedTime(o.getCreatedTime());
+            responseOrder.setDetailedinformation(o.getDetailedinformation());
+            responseOrder.setLevel(o.getLevel());
+            responseOrder.setUuid(o.getUuid());
+            responseOrder.setSuser(user);
+            responseOrders.add(responseOrder);
+        }
+        return responseOrders;
+    }
 
     private String getServerIPPort(HttpServletRequest request) {
         //+ ":" + request.getServerPort()

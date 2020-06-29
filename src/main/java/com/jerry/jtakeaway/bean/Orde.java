@@ -15,6 +15,7 @@ public class Orde {
     private int statusid;
     private Double level;
     private String uuid;
+    private String detailedinformation;
 
     @Id
     @Column(name = "ID")
@@ -124,5 +125,15 @@ public class Orde {
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
+    }
+
+    @Basic
+    @Column(name = "DETAILEDINFORMATION")
+    public String getDetailedinformation() {
+        return detailedinformation;
+    }
+
+    public void setDetailedinformation(String detailedinformation) {
+        this.detailedinformation = detailedinformation;
     }
 }

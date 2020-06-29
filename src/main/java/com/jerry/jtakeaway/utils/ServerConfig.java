@@ -19,7 +19,7 @@ public class ServerConfig {
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
-        return "http://"+address.getHostAddress() +":"+this.serverPort+"/api-0.1/resources/";
+        return "http://121.199.9.234:"+this.serverPort+"/api-0.1/resources/";
     }
 
 }

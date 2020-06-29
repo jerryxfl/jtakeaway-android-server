@@ -2,35 +2,26 @@ package com.jerry.jtakeaway.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.jerry.jtakeaway.bean.*;
-import com.jerry.jtakeaway.config.websocket.Greeting;
-import com.jerry.jtakeaway.config.websocket.HelloMessage;
 import com.jerry.jtakeaway.exception.JException;
 import com.jerry.jtakeaway.requestBean.pay;
 import com.jerry.jtakeaway.requestBean.payBean;
 import com.jerry.jtakeaway.responseBean.PayMoney;
+import com.jerry.jtakeaway.responseBean.ResponseOrder;
 import com.jerry.jtakeaway.service.imp.*;
 import com.jerry.jtakeaway.utils.JwtUtils;
 import com.jerry.jtakeaway.utils.RUtils;
+import com.jerry.jtakeaway.utils.WebSocketUtils;
 import com.jerry.jtakeaway.utils.bean.Renum;
 import com.jerry.jtakeaway.utils.bean.Result;
 import io.jsonwebtoken.Claims;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.HtmlUtils;
 
+import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Api(description = "普通用户")
@@ -38,12 +29,11 @@ import java.util.*;
 @RequestMapping("/N")
 //@SuppressWarnings("all")
 public class NController {
-
-    @Resource
-    private SimpMessagingTemplate messagingTemplate;
-
     @Resource
     JwtUtils jwtUtils;
+
+    @Resource
+    MsgServiceImp msgServiceImp;
 
     @Resource
     UserServiceImp userServiceImp;
@@ -73,11 +63,11 @@ public class NController {
     UserConponServiceImp userConponServiceImp;
 
     @Resource
-    MsgServiceImp msgServiceImp;
+    AddressServiceImp addressServiceImp;
 
     @ApiOperation("生成订单 ")
     @GetMapping("/order")
-    public Result order(HttpServletRequest request, int sId, int mId, int mSize) {
+    public Result order(HttpServletRequest request, int sId, int mId, int mSize,int addressId) {
         String jwt = request.getHeader("jwt");
         Claims claims = jwtUtils.parseJWT(jwt);
         String subject = claims.getSubject();
@@ -95,6 +85,14 @@ public class NController {
         order.setMenus(json.toJSONString());
         UUID uuid = UUID.randomUUID();
         order.setUuid(uuid.toString());
+        Menus menus = menusServiceImp.getRepository().findById(mId).orElse(null);
+        Address address = addressServiceImp.getRepository().findById(addressId).orElse(null);
+
+        JSONObject detailJson = new JSONObject();
+        detailJson.put("menu",menus);
+        detailJson.put("address",address);
+        order.setDetailedinformation(detailJson.toString());
+
         ordeServiceImp.getRepository().saveAndFlush(order);
         Orde saveAndFlush = ordeServiceImp.getRepository().findByUuid(uuid.toString());
         System.out.println("生成订单的id" + saveAndFlush.getId());
@@ -178,6 +176,8 @@ public class NController {
         }
     }
 
+    @Resource
+    WebSocketUtils webSocketUtils;
 
     @ApiOperation("使用优惠卷支付 密码需要md5加密后再传输")
     @PostMapping("/coupon_pay")
@@ -262,8 +262,8 @@ public class NController {
                         String uuid = UUID.randomUUID().toString();
                         Jtransaction transaction = new Jtransaction();
                         transaction.setCouponid(pay_bean.getCouponId());
-                        transaction.setMore("使用优惠卷购买了");
-                        transaction.setPaymoney(money);
+                        transaction.setMore("支付给"+sUser.getUsernickname()+"了$-"+money);
+                        transaction.setPaymoney(-money);
                         transaction.setPaytime(new Timestamp(new Date().getTime()));
                         transaction.setUserid(user.getId());
                         transaction.setTargetuserid(sUser.getId());
@@ -280,13 +280,14 @@ public class NController {
                         //设置优惠将已用
                         userconpon.setStatus(1);
                         userConponServiceImp.getRepository().saveAndFlush(userconpon);
+                        User nUser = userServiceImp.getRepository().findByUsertypeAndUserdetailsid(0, order.getNuserid());
 
                         Wallet shopWallet = walletServiceImp.getRepository().findById(suser.getWalletid()).orElse(null);
                         if (shopWallet == null) throw new NullPointerException();
                         shopWallet.setBalance(shopWallet.getBalance() + money / coupon.getConponprice());
                         Jtransaction shopTransaction = new Jtransaction();
                         shopTransaction.setCouponid(pay_bean.getCouponId());
-                        shopTransaction.setMore("被用优惠卷购买了");
+                        shopTransaction.setMore("收到"+nUser.getUsernickname()+"$"+money);
                         shopTransaction.setPaymoney(money);
                         shopTransaction.setPaytime(new Timestamp(new Date().getTime()));
                         shopTransaction.setUserid(sUser.getId());
@@ -303,6 +304,18 @@ public class NController {
                         walletServiceImp.getRepository().saveAndFlush(shopWallet);
                         order.setStatusid(2);
                         ordeServiceImp.getRepository().saveAndFlush(order);
+
+                        Msg msg = new Msg();
+                        msg.setAcceptuserid(sUser.getId());
+                        msg.setContent("用户"+user.getUsernickname()+"下了订单");
+                        msg.setSendTime(new Timestamp(new Date().getTime()));
+                        msg.setReadalready(0);
+                        msg.setPushalready(0);
+                        msgServiceImp.getRepository().saveAndFlush(msg);
+                        if(webSocketUtils.sendMessageToTargetUser(JSONObject.toJSONString(msg),sUser)){
+                            msg.setPushalready(1);
+                            msgServiceImp.getRepository().saveAndFlush(msg);
+                        }
                         return RUtils.success(order);
                     } else return RUtils.Err(Renum.NO_MONEY.getCode(), Renum.NO_MONEY.getMsg());
                 }
@@ -414,8 +427,8 @@ public class NController {
                         //创建交易记录
                         String uuid = UUID.randomUUID().toString();
                         Jtransaction transaction = new Jtransaction();
-                        transaction.setMore("直接购买了");
-                        transaction.setPaymoney(money);
+                        transaction.setMore("支付给"+sUser.getUsernickname()+"了$ -"+money);
+                        transaction.setPaymoney(-money);
                         transaction.setPaytime(new Timestamp(new Date().getTime()));
                         transaction.setUserid(user.getId());
                         transaction.setTargetuserid(sUser.getId());
@@ -434,12 +447,13 @@ public class NController {
                         System.out.println("seurid:" + order.getSuserid());
                         Suser suser = suserServiceImp.getRepository().findById(order.getSuserid()).orElse(null);
                         if (suser == null) throw new NullPointerException();
+                        User nUser = userServiceImp.getRepository().findByUsertypeAndUserdetailsid(0, order.getNuserid());
 
                         Wallet shopWallet = walletServiceImp.getRepository().findById(suser.getWalletid()).orElse(null);
                         if (shopWallet == null) throw new NullPointerException();
                         shopWallet.setBalance(shopWallet.getBalance() + money);
                         Jtransaction shopTransaction = new Jtransaction();
-                        shopTransaction.setMore("直接购买了");
+                        shopTransaction.setMore("收到"+nUser.getUsernickname()+"$"+money);
                         shopTransaction.setPaymoney(money);
                         shopTransaction.setPaytime(new Timestamp(new Date().getTime()));
                         shopTransaction.setUserid(sUser.getId());
@@ -460,6 +474,19 @@ public class NController {
                         order.setStatusid(2);
                         ordeServiceImp.getRepository().saveAndFlush(order);
                         System.out.println("第四次保存");
+
+                        Msg msg = new Msg();
+                        msg.setAcceptuserid(sUser.getId());
+                        msg.setContent("用户"+user.getUsernickname()+"下了订单");
+                        msg.setSendTime(new Timestamp(new Date().getTime()));
+                        msg.setReadalready(0);
+                        msg.setPushalready(0);
+                        msgServiceImp.getRepository().save(msg);
+                        if(webSocketUtils.sendMessageToTargetUser(JSONObject.toJSONString(msg),sUser)){
+                            msg.setPushalready(1);
+                            msgServiceImp.getRepository().saveAndFlush(msg);
+                        }
+
                         return RUtils.success(order);
                     } else return RUtils.Err(Renum.NO_MONEY.getCode(), Renum.NO_MONEY.getMsg());
                 }
@@ -590,6 +617,8 @@ public class NController {
         return RUtils.success(coupons);
     }
 
+    @Resource
+    OrderStatusServiceImp orderStatusServiceImp;
 
     @ApiOperation("获得订单列表 传入size")
     @GetMapping("/orders")
@@ -605,7 +634,7 @@ public class NController {
         if (nuser == null) throw new NullPointerException();
         else {
             orders = ordeServiceImp.getRepository().getAll(size, size + 10, nuser.getId());
-            return RUtils.success(orders);
+            return RUtils.success(getResponseOrders(orders,user));
         }
     }
 
@@ -623,11 +652,73 @@ public class NController {
         if (nuser == null) throw new NullPointerException();
         else {
             orders = ordeServiceImp.getRepository().findAll();
-            return RUtils.success(orders);
+
+            return RUtils.success(getResponseOrders(orders,user));
         }
     }
 
-    @ApiOperation("获得所有未结账订单")
+
+    private List<ResponseOrder> getResponseOrders(List<Orde> orders,User user){
+        List<ResponseOrder> responseOrders = new ArrayList<ResponseOrder>();
+        for (Orde o:orders) {
+            ResponseOrder responseOrder = new ResponseOrder();
+            User suser = userServiceImp.getRepository().findByUsertypeAndUserdetailsid(1,o.getSuserid());
+            responseOrder.setSuser(suser);
+            if(o.getHuserid()!= null){
+                User huser = userServiceImp.getRepository().findByUsertypeAndUserdetailsid(2,o.getHuserid());
+                responseOrder.setHuser(huser);
+            }
+            Orderstatus orderstatus = orderStatusServiceImp.getRepository().findById(o.getStatusid()).orElse(null);
+            if(orderstatus!= null){
+                responseOrder.setStatus(orderstatus);
+            }
+            JSONObject menuJsons = JSONObject.parseObject(o.getMenus());
+            for (Map.Entry<String, Object> entry : menuJsons.entrySet()) {
+                Menus mMenus = menusServiceImp.getRepository().findById(Integer.valueOf(entry.getKey())).orElse(null);
+                responseOrder.setMenuSize((Integer) entry.getValue());
+                if(mMenus!= null){
+                    responseOrder.setMenus(mMenus);
+                }
+            }
+            Suser ssuser = suserServiceImp.getRepository().findById(o.getSuserid()).orElse(null);
+            if(ssuser!=null) responseOrder.setSsuser(ssuser);
+
+            responseOrder.setId(o.getId());
+            responseOrder.setCreatedTime(o.getCreatedTime());
+            responseOrder.setDetailedinformation(o.getDetailedinformation());
+            responseOrder.setLevel(o.getLevel());
+            responseOrder.setUuid(o.getUuid());
+            responseOrder.setNuser(user);
+            responseOrders.add(responseOrder);
+        }
+        return responseOrders;
+    }
+
+    @ApiOperation("获得所有未结账订单responseorder")
+    @GetMapping("/all_no_pay_responseorders")
+    public Result all_no_pay_responseorders(HttpServletRequest request) {
+        String jwt = request.getHeader("jwt");
+        Claims claims = jwtUtils.parseJWT(jwt);
+        String subject = claims.getSubject();
+        JSONObject jsonObject = JSONObject.parseObject(subject);
+        User user = userServiceImp.getRepository().findByAccount(JSONObject.toJavaObject(jsonObject, User.class).getAccount());
+        //获得普通用户订单
+        Nuser nuser = nuserServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
+        List<Orde> orders = new ArrayList<Orde>();
+        List<Orde> rOrders = new ArrayList<Orde>();
+        if (nuser == null) throw new NullPointerException();
+        else {
+            orders = ordeServiceImp.getRepository().findAll();
+            for (int i = 0; i < orders.size(); i++) {
+                if (orders.get(i).getStatusid() == 1) {
+                    rOrders.add(orders.get(i));
+                }
+            }
+            return RUtils.success(getResponseOrders(rOrders,user));
+        }
+    }
+
+    @ApiOperation("获得所有未结账订单order")
     @GetMapping("/all_no_pay_orders")
     public Result all_no_pay_orders(HttpServletRequest request) {
         String jwt = request.getHeader("jwt");
@@ -665,7 +756,9 @@ public class NController {
         //先判断是否有此订单
         Orde orde = ordeServiceImp.getRepository().findByNuseridAndId(nuser.getId(), id);
         if (orde == null) throw new NullPointerException();
-        return RUtils.success(orde);
+        List<Orde> ordes = new ArrayList<Orde>();
+        ordes.add(orde);
+        return RUtils.success(getResponseOrders(ordes,user));
     }
 
     @ApiOperation(".获得一部分消息   size")

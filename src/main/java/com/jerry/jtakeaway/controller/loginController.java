@@ -8,6 +8,7 @@ import com.jerry.jtakeaway.service.imp.*;
 import com.jerry.jtakeaway.utils.JwtUtils;
 import com.jerry.jtakeaway.utils.RUtils;
 import com.jerry.jtakeaway.utils.RedisUtils;
+import com.jerry.jtakeaway.utils.WebSocketUtils;
 import com.jerry.jtakeaway.utils.bean.Renum;
 import com.jerry.jtakeaway.utils.bean.Result;
 import io.jsonwebtoken.Claims;
@@ -55,6 +56,9 @@ public class loginController {
 
     @Resource
     XuserServiceImp xuserServiceImp;
+
+    @Resource
+    WebSocketUtils webSocketUtils;
 
     @ApiOperation("用户认证操作")
     @PostMapping("/jwtLogin")
@@ -108,6 +112,7 @@ public class loginController {
                             JSONObject resultJson = new JSONObject();
                             resultJson.put("jwt",jwt);
                             resultJson.put("user",responseUser);
+
                             return RUtils.success(resultJson.toJSONString());
                         }else{
                             return RUtils.Err(Renum.PWD_ERROE.getCode(),Renum.PWD_ERROE.getMsg());
@@ -119,8 +124,10 @@ public class loginController {
                          * 这里可以用websocket通知已登录用户有异地登录请求
                          *
                          */
-
-
+                        Msg msg = new Msg();
+                        msg.setSendTime(new Timestamp(new Date().getTime()));
+                        msg.setContent("账号在其他设备尝试登录,注意账号安全");
+                        webSocketUtils.sendMessageToTargetUser(JSONObject.toJSONString(msg),user);
                         return RUtils.Err(Renum.USER_IS_EXISTS.getCode(),Renum.USER_IS_EXISTS.getMsg());
                     }
                 }else{
@@ -130,7 +137,17 @@ public class loginController {
             }catch (ExpiredJwtException e) {
                 System.out.println("jwt已过期");
                 //过期删除原来数据库中的jwt 重新登录
-                if(redisUtils.get(user.getAccount())!=null)redisUtils.delete(user.getAccount());
+                if(redisUtils.get(user.getAccount())!=null){
+                    if(jwt.equals(redisUtils.get(user.getAccount()))){
+                        redisUtils.delete(user.getAccount());
+                    }else{
+                        Msg msg = new Msg();
+                        msg.setSendTime(new Timestamp(new Date().getTime()));
+                        msg.setContent("账号在其他设备尝试登录,注意账号安全");
+                        webSocketUtils.sendMessageToTargetUser(JSONObject.toJSONString(msg),user);
+                        return RUtils.Err(Renum.USER_IS_EXISTS.getCode(),Renum.USER_IS_EXISTS.getMsg());
+                    }
+                }
                 return login(user);
             }
         }else{
@@ -144,6 +161,10 @@ public class loginController {
         //判断用户是否已登录
         if(redisUtils.get(user.getAccount())!=null){
             //用户已登录
+            Msg msg = new Msg();
+            msg.setSendTime(new Timestamp(new Date().getTime()));
+            msg.setContent("账号在其他设备尝试登录,注意账号安全");
+            webSocketUtils.sendMessageToTargetUser(JSONObject.toJSONString(msg),user);
             return  RUtils.Err(Renum.USER_IS_EXISTS.getCode(),Renum.USER_IS_EXISTS.getMsg());
         }else{
             //生成jwt
@@ -193,6 +214,7 @@ public class loginController {
                     resultJson.put("jwt",jwt);
                     resultJson.put("user",responseUser);
                     System.out.println("jwt --------:"+jwt);
+
                     return RUtils.success(resultJson.toJSONString());
                 }else{
                     return RUtils.Err(Renum.PWD_ERROE.getCode(),Renum.PWD_ERROE.getMsg());

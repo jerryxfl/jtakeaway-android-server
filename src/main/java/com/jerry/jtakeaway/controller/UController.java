@@ -7,6 +7,7 @@ import com.jerry.jtakeaway.exception.JException;
 import com.jerry.jtakeaway.requestBean.RequestsUser;
 import com.jerry.jtakeaway.requestBean.Tmoney;
 import com.jerry.jtakeaway.requestBean.changePay;
+import com.jerry.jtakeaway.responseBean.ResponseTransaction;
 import com.jerry.jtakeaway.responseBean.ResponseUser;
 import com.jerry.jtakeaway.service.imp.*;
 import com.jerry.jtakeaway.utils.*;
@@ -254,6 +255,24 @@ public class UController {
         }
         wallet.setBalance(wallet.getBalance()+money);
         walletServiceImp.getRepository().saveAndFlush(wallet);
+
+        Jtransaction transaction = new Jtransaction();
+        transaction.setMore("充值了 $"+money);
+        transaction.setPaymoney((double) money);
+        transaction.setPaytime(new Timestamp(new Date().getTime()));
+        transaction.setUserid(user.getId());
+        transaction.setTargetuserid(user.getId());
+        String uuid2 = UUID.randomUUID().toString();
+        transaction.setUuid(uuid2);
+        transactionServiceImp.getRepository().saveAndFlush(transaction);
+        transaction = transactionServiceImp.getRepository().findByUuid(uuid2);
+
+        if(wallet.getTransactionid().equals("")||wallet.getTransactionid()==null){
+            wallet.setTransactionid(String.valueOf(transaction.getId()));
+        }else{
+            wallet.setTransactionid(wallet.getTransactionid()+":"+String.valueOf(transaction.getId()));
+        }
+
         return RUtils.success();
     }
 
@@ -289,6 +308,25 @@ public class UController {
             if(wallet.getBalance()<tmoney.getMoney())return RUtils.Err(Renum.NO_MONEY.getCode(), Renum.NO_MONEY.getMsg());
             wallet.setBalance(wallet.getBalance()-tmoney.getMoney());
             walletServiceImp.getRepository().saveAndFlush(wallet);
+
+            Jtransaction transaction = new Jtransaction();
+            transaction.setMore("提现了 $"+tmoney.getMoney());
+            transaction.setPaymoney(tmoney.getMoney());
+            transaction.setPaytime(new Timestamp(new Date().getTime()));
+            transaction.setUserid(user.getId());
+            transaction.setTargetuserid(user.getId());
+            String uuid2 = UUID.randomUUID().toString();
+            transaction.setUuid(uuid2);
+            transactionServiceImp.getRepository().saveAndFlush(transaction);
+
+            transaction = transactionServiceImp.getRepository().findByUuid(uuid2);
+
+            if(wallet.getTransactionid().equals("")||wallet.getTransactionid()==null){
+                wallet.setTransactionid(String.valueOf(transaction.getId()));
+            }else{
+                wallet.setTransactionid(wallet.getTransactionid()+":"+String.valueOf(transaction.getId()));
+            }
+
             return RUtils.success();
         } else {
             return RUtils.Err(Renum.PAYPAS_FAIL.getCode(), Renum.PAYPAS_FAIL.getMsg());
@@ -306,7 +344,7 @@ public class UController {
         JSONObject jsonObject = JSONObject.parseObject(subject);
         User user = userServiceImp.getRepository().findByAccount(JSONObject.toJavaObject(jsonObject, User.class).getAccount());
         Wallet wallet = null;
-        List<Jtransaction> transactions = new ArrayList<>();
+        List<ResponseTransaction> transactions = new ArrayList<>();
         switch (user.getUsertype()) {
             case 0:
                 Nuser nuser = nusersServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
@@ -332,7 +370,15 @@ public class UController {
             String[] tIds = wallet.getTransactionid().split(":");
             for (int i = 0; i < tIds.length; i++) {
                 Jtransaction transaction = transactionServiceImp.getRepository().findById(Integer.valueOf(tIds[i])).orElse(null);
-                if (transaction != null) transactions.add(transaction);
+                if (transaction != null) {
+                    ResponseTransaction responseTransaction = new ResponseTransaction();
+                    responseTransaction.setJtransaction(transaction);
+                    User sender = userServiceImp.getRepository().findById(transaction.getUserid());
+                    responseTransaction.setUser(sender);
+                    User targetUser = userServiceImp.getRepository().findById(transaction.getTargetuserid());
+                    responseTransaction.setTargetUser(targetUser);
+                    transactions.add(responseTransaction);
+                };
             }
             return RUtils.success(transactions);
         }
@@ -554,38 +600,7 @@ public class UController {
     @Value(value = "${web.resources-path}")
     private String webResourcesPath;
 
-//    @ApiOperation("上传头像")
-//    @PostMapping("/u_advater")
-//    public Result d_address(@RequestParam("file") MultipartFile mfile) throws IOException {
-//        String jwt = request.getHeader("jwt");
-//        Claims claims = jwtUtils.parseJWT(jwt);
-//        String subject = claims.getSubject();
-//        JSONObject jsonObject = JSONObject.parseObject(subject);
-//        User user = userServiceImp.getRepository().findByAccount(JSONObject.toJavaObject(jsonObject, User.class).getAccount());
-//        System.out.println("有文件上传");
-//        if(mfile.isEmpty())throw new NullPointerException();
-//
-//        String originalFilename = mfile.getOriginalFilename();
-//
-//        File file = null;
-//
-//        try{
-//            File path = new File(ResourceUtils.getURL("classpath:").getPath());
-//            File upload = new File(path.getAbsolutePath(), "static"+File.separator+"advatar"+File.separator+user.getAccount()+File.separator);
-//            if (!upload.exists()) upload.mkdirs();
-//            String uploadPath = upload.getPath() + File.separator;
-//            file = new File(uploadPath + originalFilename);
-//            mfile.transferTo(file);
-//            System.out.println(file.getPath());
-//            String remoteaddr = "http://127.0.0.1:8080/api-0.1/advatar/"+user.getAccount()+"/"+originalFilename;
-//            user.setUseradvatar(remoteaddr);
-//            userServiceImp.getRepository().saveAndFlush(user);
-//        }catch(Exception e){
-//            throw e;
-//        }
-//        return RUtils.success();
-//    }
-//
+
     @Resource
     ServerConfig serverConfig;
 
@@ -761,5 +776,184 @@ public class UController {
         List<Loginrecord> loginrecordList = new ArrayList<Loginrecord>();
         loginrecordList = loginRecordServiceImp.getRepository().findByUserid(user.getId());
         return RUtils.success(loginrecordList);
+    }
+
+    @Resource
+    MsgServiceImp msgServiceImp;
+
+    @ApiOperation("设置消息已读")
+    @GetMapping("/msg_red")
+    public Result msg_red(int msgid) throws IOException {
+        String jwt = request.getHeader("jwt");
+        Claims claims = jwtUtils.parseJWT(jwt);
+        String subject = claims.getSubject();
+        JSONObject jsonObject = JSONObject.parseObject(subject);
+        User user = userServiceImp.getRepository().findByAccount(JSONObject.toJavaObject(jsonObject, User.class).getAccount());
+        Msg msg = msgServiceImp.getRepository().findById(msgid).orElse(null);
+        System.out.println("设置消息已读");
+        if(msg != null){
+            if(msg.getAcceptuserid()== user.getId()){
+                msg.setReadalready(1);
+                msgServiceImp.getRepository().saveAndFlush(msg);
+            }
+        }
+        return RUtils.success();
+    }
+
+
+
+    public void createSecurityHtml(){
+        String html = "<!DOCTYPE html>\n" +
+                "<html>\n" +
+                "<head>\n" +
+                "    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n" +
+                "    <title></title>\n" +
+                "    <meta charset=\"utf-8\" />\n" +
+                "\n" +
+                "</head>\n" +
+                "<body>\n" +
+                "    <div class=\"qmbox qm_con_body_content qqmail_webmail_only\" id=\"mailContentContainer\" style=\"\">\n" +
+                "        <style type=\"text/css\">\n" +
+                "            .qmbox body {\n" +
+                "                margin: 0;\n" +
+                "                padding: 0;\n" +
+                "                background: #fff;\n" +
+                "                font-family: \"Verdana, Arial, Helvetica, sans-serif\";\n" +
+                "                font-size: 14px;\n" +
+                "                line-height: 24px;\n" +
+                "            }\n" +
+                "\n" +
+                "            .qmbox div, .qmbox p, .qmbox span, .qmbox img {\n" +
+                "                margin: 0;\n" +
+                "                padding: 0;\n" +
+                "            }\n" +
+                "\n" +
+                "            .qmbox img {\n" +
+                "                border: none;\n" +
+                "            }\n" +
+                "\n" +
+                "            .qmbox .contaner {\n" +
+                "                margin: 0 auto;\n" +
+                "            }\n" +
+                "\n" +
+                "            .qmbox .title {\n" +
+                "                margin: 0 auto;\n" +
+                "                background: url() #CCC repeat-x;\n" +
+                "                height: 30px;\n" +
+                "                text-align: center;\n" +
+                "                font-weight: bold;\n" +
+                "                padding-top: 12px;\n" +
+                "                font-size: 16px;\n" +
+                "            }\n" +
+                "\n" +
+                "            .qmbox .content {\n" +
+                "                margin: 4px;\n" +
+                "            }\n" +
+                "\n" +
+                "            .qmbox .biaoti {\n" +
+                "                padding: 6px;\n" +
+                "                color: #000;\n" +
+                "            }\n" +
+                "\n" +
+                "            .qmbox .xtop, .qmbox .xbottom {\n" +
+                "                display: block;\n" +
+                "                font-size: 1px;\n" +
+                "            }\n" +
+                "\n" +
+                "            .qmbox .xb1, .qmbox .xb2, .qmbox .xb3, .qmbox .xb4 {\n" +
+                "                display: block;\n" +
+                "                overflow: hidden;\n" +
+                "            }\n" +
+                "\n" +
+                "            .qmbox .xb1, .qmbox .xb2, .qmbox .xb3 {\n" +
+                "                height: 1px;\n" +
+                "            }\n" +
+                "\n" +
+                "            .qmbox .xb2, .qmbox .xb3, .qmbox .xb4 {\n" +
+                "                border-left: 1px solid #BCBCBC;\n" +
+                "                border-right: 1px solid #BCBCBC;\n" +
+                "            }\n" +
+                "\n" +
+                "            .qmbox .xb1 {\n" +
+                "                margin: 0 5px;\n" +
+                "                background: #BCBCBC;\n" +
+                "            }\n" +
+                "\n" +
+                "            .qmbox .xb2 {\n" +
+                "                margin: 0 3px;\n" +
+                "                border-width: 0 2px;\n" +
+                "            }\n" +
+                "\n" +
+                "            .qmbox .xb3 {\n" +
+                "                margin: 0 2px;\n" +
+                "            }\n" +
+                "\n" +
+                "            .qmbox .xb4 {\n" +
+                "                height: 2px;\n" +
+                "                margin: 0 1px;\n" +
+                "            }\n" +
+                "\n" +
+                "            .qmbox .xboxcontent {\n" +
+                "                display: block;\n" +
+                "                border: 0 solid #BCBCBC;\n" +
+                "                border-width: 0 1px;\n" +
+                "            }\n" +
+                "\n" +
+                "            .qmbox .line {\n" +
+                "                margin-top: 6px;\n" +
+                "                border-top: 1px dashed #B9B9B9;\n" +
+                "                padding: 4px;\n" +
+                "            }\n" +
+                "\n" +
+                "            .qmbox .neirong {\n" +
+                "                padding: 6px;\n" +
+                "                color: #666666;\n" +
+                "            }\n" +
+                "\n" +
+                "            .qmbox .foot {\n" +
+                "                padding: 6px;\n" +
+                "                color: #777;\n" +
+                "            }\n" +
+                "\n" +
+                "            .qmbox .font_darkblue {\n" +
+                "                color: #006699;\n" +
+                "                font-weight: bold;\n" +
+                "            }\n" +
+                "\n" +
+                "            .qmbox .font_lightblue {\n" +
+                "                color: #008BD1;\n" +
+                "                font-weight: bold;\n" +
+                "            }\n" +
+                "\n" +
+                "            .qmbox .font_gray {\n" +
+                "                color: #888;\n" +
+                "                font-size: 12px;\n" +
+                "            }\n" +
+                "        </style>\n" +
+                "        <div class=\"contaner\">\n" +
+                "            <div class=\"title\">$(title)</div>\n" +
+                "            <div class=\"content\">\n" +
+                "                <p class=\"biaoti\"><b>亲爱的用户，你好！</b></p>\n" +
+                "                <b class=\"xtop\"><b class=\"xb1\"></b><b class=\"xb2\"></b><b class=\"xb3\"></b><b class=\"xb4\"></b></b>\n" +
+                "                <div class=\"xboxcontent\">\n" +
+                "                    <div class=\"neirong\">\n" +
+                "                        <p><b>请核对你的用户名：</b><span id=\"userName\" class=\"font_darkblue\">$(userName)</span></p>\n" +
+                "                        <p><b>$(type)的验证码：</b><span class=\"font_lightblue\"><span id=\"yzm\" data=\"$(captcha)\" onclick=\"return false;\" t=\"7\" style=\"border-bottom: 1px dashed rgb(204, 204, 204); z-index: 1; position: static;\">$(captcha)</span></span><br><span class=\"font_gray\">(请输入该验证码完成$(type)，验证码30分钟内有效！)</span></p>\n" +
+                "                        <div class=\"line\">如果你未申请邮箱绑定服务，请忽略该邮件。</div>\n" +
+                "                    </div>\n" +
+                "                </div>\n" +
+                "                <b class=\"xbottom\"><b class=\"xb4\"></b><b class=\"xb3\"></b><b class=\"xb2\"></b><b class=\"xb1\"></b></b>\n" +
+                "                <p class=\"foot\">如果仍有问题，请拨打我们的会员服务专线:  <span data=\"800-820-5100\" onclick=\"return false;\" t=\"7\" style=\"border-bottom: 1px dashed rgb(204, 204, 204); z-index: 1; position: static;\">021-51875288\n" +
+                "</span></p>\n" +
+                "            </div>\n" +
+                "        </div>\n" +
+                "        <style type=\"text/css\">\n" +
+                "            .qmbox style, .qmbox script, .qmbox head, .qmbox link, .qmbox meta {\n" +
+                "                display: none !important;\n" +
+                "            }\n" +
+                "        </style>\n" +
+                "    </div>\n" +
+                "</body>\n" +
+                "</html>\n";
     }
 }

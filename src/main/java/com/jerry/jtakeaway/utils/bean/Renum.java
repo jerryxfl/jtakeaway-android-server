@@ -34,6 +34,7 @@ public enum Renum {
     CONPON_USE(21,"优惠卷已使用"),
     EMAIL_FAILED(22,"邮箱无效"),
     FILE_FAILED(23,"文件上传失败"),
+    HAVE_ORDER_NOT_COMPLETE(24,"还有订单未完成"),
     ;
     private Integer code;
     private String msg;

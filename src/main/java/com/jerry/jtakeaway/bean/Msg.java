@@ -7,10 +7,12 @@ import java.util.Objects;
 @Entity
 public class Msg {
     private int id;
-    private int acceptuserid;
-    private int senduserid;
+    private Integer acceptuserid;
+    private Integer senduserid;
     private String content;
     private Timestamp sendTime;
+    private int readalready;
+    private int pushalready;
 
     @Id
     @Column(name = "ID")
@@ -25,21 +27,21 @@ public class Msg {
 
     @Basic
     @Column(name = "ACCEPTUSERID")
-    public int getAcceptuserid() {
+    public Integer getAcceptuserid() {
         return acceptuserid;
     }
 
-    public void setAcceptuserid(int acceptuserid) {
+    public void setAcceptuserid(Integer acceptuserid) {
         this.acceptuserid = acceptuserid;
     }
 
     @Basic
     @Column(name = "SENDUSERID")
-    public int getSenduserid() {
+    public Integer getSenduserid() {
         return senduserid;
     }
 
-    public void setSenduserid(int senduserid) {
+    public void setSenduserid(Integer senduserid) {
         this.senduserid = senduserid;
     }
 
@@ -78,5 +80,25 @@ public class Msg {
     @Override
     public int hashCode() {
         return Objects.hash(id, acceptuserid, senduserid, content, sendTime);
+    }
+
+    @Basic
+    @Column(name = "READALREADY")
+    public int getReadalready() {
+        return readalready;
+    }
+
+    public void setReadalready(int readalready) {
+        this.readalready = readalready;
+    }
+
+    @Basic
+    @Column(name = "PUSHALREADY")
+    public int getPushalready() {
+        return pushalready;
+    }
+
+    public void setPushalready(int pushalready) {
+        this.pushalready = pushalready;
     }
 }
