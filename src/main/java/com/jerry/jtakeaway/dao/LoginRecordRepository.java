@@ -10,6 +10,6 @@ import java.util.List;
 
 @Repository("LoginRecordDao")
 public interface LoginRecordRepository extends JpaRepository<Loginrecord,Integer> {
-    @Query(value="select * from loginrecord where USERID = ?1",nativeQuery = true)
-    List<Loginrecord> findByUserid(int userid);
+    @Query(value ="select * from (select * from loginrecord limit ?1,?2) a where USERID = ?3",nativeQuery= true)
+    List<Loginrecord> findByUserid(int start,int end,int userid);
 }

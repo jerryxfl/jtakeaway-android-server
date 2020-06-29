@@ -767,14 +767,15 @@ public class UController {
 
     @ApiOperation("获得登录记录")
     @GetMapping("/g_login_reord")
-    public Result g_login_reord() throws IOException {
+    public Result g_login_reord() {
         String jwt = request.getHeader("jwt");
         Claims claims = jwtUtils.parseJWT(jwt);
         String subject = claims.getSubject();
         JSONObject jsonObject = JSONObject.parseObject(subject);
         User user = userServiceImp.getRepository().findByAccount(JSONObject.toJavaObject(jsonObject, User.class).getAccount());
         List<Loginrecord> loginrecordList = new ArrayList<Loginrecord>();
-        loginrecordList = loginRecordServiceImp.getRepository().findByUserid(user.getId());
+        int size = (int) loginRecordServiceImp.getRepository().count();
+        loginrecordList = loginRecordServiceImp.getRepository().findByUserid(size-10,size,user.getId());
         return RUtils.success(loginrecordList);
     }
 
