@@ -270,10 +270,13 @@ public class NController {
                         transaction.setUuid(uuid);
                         transactionServiceImp.getRepository().saveAndFlush(transaction);
                         transaction = transactionServiceImp.getRepository().findByUuid(uuid);
-                        if (wallet.getTransactionid()==null||"".equals(wallet.getTransactionid())) {
+                        if (wallet.getTransactionid()==null) {
                             wallet.setTransactionid(String.valueOf(transaction.getId()));
                         } else {
-                            wallet.setTransactionid(wallet.getTransactionid() + ":" + transaction.getId());
+                            if(wallet.getTransactionid().equals("")){
+                                wallet.setTransactionid(String.valueOf(transaction.getId()));
+                            }
+                            else wallet.setTransactionid(wallet.getTransactionid() + ":" + transaction.getId());
                         }
                         walletServiceImp.getRepository().saveAndFlush(wallet);
 
@@ -296,10 +299,13 @@ public class NController {
                         shopTransaction.setUuid(uuid2);
                         transactionServiceImp.getRepository().saveAndFlush(shopTransaction);
                         shopTransaction = transactionServiceImp.getRepository().findByUuid(uuid2);
-                        if (shopWallet.getTransactionid()==null||shopWallet.getTransactionid().equals("")) {
+                        if (shopWallet.getTransactionid()==null) {
                             shopWallet.setTransactionid(String.valueOf(shopTransaction.getId()));
                         } else {
-                            shopWallet.setTransactionid(shopWallet.getTransactionid() + ":" + shopTransaction.getId());
+                            if(shopWallet.getTransactionid().equals("")){
+                                shopWallet.setTransactionid(String.valueOf(shopTransaction.getId()));
+                            }
+                            else  shopWallet.setTransactionid(shopWallet.getTransactionid() + ":" + shopTransaction.getId());
                         }
                         walletServiceImp.getRepository().saveAndFlush(shopWallet);
                         order.setStatusid(2);
@@ -436,10 +442,13 @@ public class NController {
                         transactionServiceImp.getRepository().saveAndFlush(transaction);
                         transaction = transactionServiceImp.getRepository().findByUuid(uuid);
                         System.out.println("第一次保存");
-                        if (wallet.getTransactionid().equals("")) {
+                        if (wallet.getTransactionid()==null) {
                             wallet.setTransactionid(String.valueOf(transaction.getId()));
                         } else {
-                            wallet.setTransactionid(wallet.getTransactionid() + ":" + transaction.getId());
+                            if(wallet.getTransactionid().equals("")){
+                                wallet.setTransactionid(String.valueOf(transaction.getId()));
+                            }
+                            else wallet.setTransactionid(wallet.getTransactionid() + ":" + transaction.getId());
                         }
                         walletServiceImp.getRepository().saveAndFlush(wallet);
                         System.out.println("第二次保存");
@@ -463,12 +472,13 @@ public class NController {
                         transactionServiceImp.getRepository().saveAndFlush(shopTransaction);
                         shopTransaction = transactionServiceImp.getRepository().findByUuid(uuid2);
                         System.out.println("第三次保存");
-                        if (shopWallet.getTransactionid()==null||"".equals(shopWallet.getTransactionid())) {
+                        if (shopWallet.getTransactionid()==null) {
                             shopWallet.setTransactionid(String.valueOf(shopTransaction.getId()));
-                            System.out.println("交易记录为空");
                         } else {
-                            shopWallet.setTransactionid(shopWallet.getTransactionid() + ":" + shopTransaction.getId());
-                            System.out.println("交易记录不为空");
+                            if(shopWallet.getTransactionid().equals("")){
+                                shopWallet.setTransactionid(String.valueOf(shopTransaction.getId()));
+                            }
+                            else  shopWallet.setTransactionid(shopWallet.getTransactionid() + ":" + shopTransaction.getId());
                         }
                         walletServiceImp.getRepository().saveAndFlush(shopWallet);
                         order.setStatusid(2);
@@ -631,6 +641,8 @@ public class NController {
         //获得普通用户订单
         Nuser nuser = nuserServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
         List<Orde> orders = new ArrayList<Orde>();
+        System.out.println("nuser编号:"+nuser.getId());
+        System.out.println("size:"+size);
         if (nuser == null) throw new NullPointerException();
         else {
             orders = ordeServiceImp.getRepository().getAll(size, size + 10, nuser.getId());
@@ -659,6 +671,7 @@ public class NController {
 
 
     private List<ResponseOrder> getResponseOrders(List<Orde> orders,User user){
+        System.out.println("订单大小:"+orders.size());
         List<ResponseOrder> responseOrders = new ArrayList<ResponseOrder>();
         for (Orde o:orders) {
             ResponseOrder responseOrder = new ResponseOrder();
@@ -759,22 +772,6 @@ public class NController {
         List<Orde> ordes = new ArrayList<Orde>();
         ordes.add(orde);
         return RUtils.success(getResponseOrders(ordes,user));
-    }
-
-    @ApiOperation(".获得一部分消息   size")
-    @GetMapping("/msgs")
-    public Result msgs(HttpServletRequest request, int size) {
-        String jwt = request.getHeader("jwt");
-        Claims claims = jwtUtils.parseJWT(jwt);
-        String subject = claims.getSubject();
-        JSONObject jsonObject = JSONObject.parseObject(subject);
-        User user = userServiceImp.getRepository().findByAccount(JSONObject.toJavaObject(jsonObject, User.class).getAccount());
-        //获得普通用户订单
-        Nuser nuser = nuserServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
-        if (nuser == null) throw new NullPointerException();
-        List<Msg> msgs = new ArrayList<>();
-        msgs = msgServiceImp.getRepository().getAll(size, size + 15, nuser.getId());
-        return RUtils.success(msgs);
     }
 
     @Resource

@@ -2,6 +2,7 @@ package com.jerry.jtakeaway.bean;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.Objects;
 
 @Entity
@@ -15,6 +16,7 @@ public class User implements Serializable {
     private int userdetailsid;
     private String phone;
     private String email;
+    private Timestamp createtime;
 
     @Id
     @Column(name = "ID")
@@ -126,5 +128,15 @@ public class User implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(id, account, password, usernickname, useradvatar, usertype, userdetailsid, phone, email);
+    }
+
+    @Basic
+    @Column(name = "CREATETIME")
+    public Timestamp getCreatetime() {
+        return createtime;
+    }
+
+    public void setCreatetime(Timestamp createtime) {
+        this.createtime = createtime;
     }
 }

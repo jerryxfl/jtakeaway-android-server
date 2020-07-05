@@ -13,7 +13,10 @@ import java.util.List;
 public interface MenusRepository extends JpaRepository<Menus, Integer> {
 
 
-    @Query(value ="select * from (select * from menus limit ?1,?2) a where SUERID = ?3",nativeQuery= true)
+//    @Query(value ="select * from (select * from menus limit ?1,?2) a where SUERID = ?3",nativeQuery= true)
+//    List<Menus> getAll(int start, int end, int suserid);
+
+    @Query(value ="select * from menus where SUERID = ?3 limit ?1,?2",nativeQuery= true)
     List<Menus> getAll(int start, int end, int suserid);
 
     Menus findByIdAndSuerid(int id, int suserid);

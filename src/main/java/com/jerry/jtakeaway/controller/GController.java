@@ -64,17 +64,17 @@ public class GController {
     @GetMapping("/shops")
     public Result shops(int size) {
         System.out.println("请求者来了");
+        List<ShopHaveMenu> shopHaveMenus = new ArrayList<>();
         List<Suser> surerList = suserServiceImp.getRepository().shopList(size, size + 15);
-        List<Suser> resultList = new ArrayList<>();
-        for (int i = 0; i < surerList.size(); i++) {
-            if (surerList.get(i).getApplyid() != 0) {
-                Apply apply = applyServiceImp.getRepository().findById(surerList.get(i).getApplyid()).orElse(null);
-                if (apply != null) {
-                    if (apply.getAuditstatus() == 2) resultList.add(surerList.get(i));
-                }
+        Random random = new Random();
+        for (Suser suser : surerList) {
+            List<Menus> menus = menusServiceImp.getRepository().findBySuerid(suser.getId());
+            if(!menus.isEmpty()){
+                Menus menu = menus.get(random.nextInt(menus.size()));
+                shopHaveMenus.add(new ShopHaveMenu(suser,menu));
             }
         }
-        return RUtils.success(resultList);
+        return RUtils.success(shopHaveMenus);
     }
 
     @ApiOperation("获取商家 传入id")
@@ -82,18 +82,23 @@ public class GController {
     public Result shop(int id) {
         System.out.println("请求者来了");
         Suser suser = suserServiceImp.getRepository().findById(id).orElse(null);
-        if (suser != null)
-            if (suser.getApplyid() != 0) {
-                Apply apply = applyServiceImp.getRepository().findById(suser.getApplyid()).orElse(null);
-                if (apply != null) {
-                    if (apply.getAuditstatus() == 2) {
-                        suser.setIdcard(null);
-                        suser.setWalletid(null);
-                        return RUtils.success(suser);
+        if (suser != null){
+            if(suser.getApplyid()!=null){
+                if (suser.getApplyid() != 0) {
+                    Apply apply = applyServiceImp.getRepository().findById(suser.getApplyid()).orElse(null);
+                    if (apply != null) {
+                        if (apply.getAuditstatus() == 2) {
+                            suser.setIdcard(null);
+                            suser.setWalletid(null);
+                            return RUtils.success(suser);
+                        }
                     }
                 }
             }
-        return RUtils.success();
+        }else{
+            return RUtils.Err(Renum.UNKNOWN_ERROR.getCode(), Renum.UNKNOWN_ERROR.getMsg());
+        }
+        return RUtils.success(suser);
     }
 
     @ApiOperation("获取热门商家")

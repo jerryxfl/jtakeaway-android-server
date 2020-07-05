@@ -163,7 +163,6 @@ public class UController {
                 Nuser nuser = nusersServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
                 Nuser c_nuser = (Nuser) C_user.getUserdetails();
                 nuser.setAddress(c_nuser.getAddress());
-                nuser.setPhone(c_nuser.getPhone());
                 nusersServiceImp.getRepository().saveAndFlush(nuser);
                 return RUtils.success();
             case 1:
@@ -253,11 +252,10 @@ public class UController {
             case 3:
                 return RUtils.Err(Renum.NO_WALLTE.getCode(), Renum.NO_WALLTE.getMsg());
         }
-        wallet.setBalance(wallet.getBalance()+money);
-        walletServiceImp.getRepository().saveAndFlush(wallet);
+        wallet.setBalance(wallet.getBalance() + money);
 
         Jtransaction transaction = new Jtransaction();
-        transaction.setMore("充值了 $"+money);
+        transaction.setMore("充值了 $" + money);
         transaction.setPaymoney((double) money);
         transaction.setPaytime(new Timestamp(new Date().getTime()));
         transaction.setUserid(user.getId());
@@ -267,11 +265,13 @@ public class UController {
         transactionServiceImp.getRepository().saveAndFlush(transaction);
         transaction = transactionServiceImp.getRepository().findByUuid(uuid2);
 
-        if(wallet.getTransactionid().equals("")||wallet.getTransactionid()==null){
+        if (wallet.getTransactionid() == null) {
             wallet.setTransactionid(String.valueOf(transaction.getId()));
-        }else{
-            wallet.setTransactionid(wallet.getTransactionid()+":"+String.valueOf(transaction.getId()));
+        } else {
+            if (wallet.getTransactionid().equals("")) wallet.setTransactionid(String.valueOf(transaction.getId()));
+            else wallet.setTransactionid(wallet.getTransactionid() + ":" + transaction.getId());
         }
+        walletServiceImp.getRepository().saveAndFlush(wallet);
 
         return RUtils.success();
     }
@@ -305,13 +305,13 @@ public class UController {
                 return RUtils.Err(Renum.NO_WALLTE.getCode(), Renum.NO_WALLTE.getMsg());
         }
         if (wallet.getPaymentpassword().equals(tmoney.getPayPassword())) {
-            if(wallet.getBalance()<tmoney.getMoney())return RUtils.Err(Renum.NO_MONEY.getCode(), Renum.NO_MONEY.getMsg());
-            wallet.setBalance(wallet.getBalance()-tmoney.getMoney());
-            walletServiceImp.getRepository().saveAndFlush(wallet);
+            if (wallet.getBalance() < tmoney.getMoney())
+                return RUtils.Err(Renum.NO_MONEY.getCode(), Renum.NO_MONEY.getMsg());
+            wallet.setBalance(wallet.getBalance() - tmoney.getMoney());
 
             Jtransaction transaction = new Jtransaction();
-            transaction.setMore("提现了 $"+tmoney.getMoney());
-            transaction.setPaymoney(tmoney.getMoney());
+            transaction.setMore("提现了 $" + tmoney.getMoney());
+            transaction.setPaymoney(-tmoney.getMoney());
             transaction.setPaytime(new Timestamp(new Date().getTime()));
             transaction.setUserid(user.getId());
             transaction.setTargetuserid(user.getId());
@@ -321,11 +321,13 @@ public class UController {
 
             transaction = transactionServiceImp.getRepository().findByUuid(uuid2);
 
-            if(wallet.getTransactionid().equals("")||wallet.getTransactionid()==null){
+            if (wallet.getTransactionid() == null) {
                 wallet.setTransactionid(String.valueOf(transaction.getId()));
-            }else{
-                wallet.setTransactionid(wallet.getTransactionid()+":"+String.valueOf(transaction.getId()));
+            } else {
+                if (wallet.getTransactionid().equals("")) wallet.setTransactionid(String.valueOf(transaction.getId()));
+                else wallet.setTransactionid(wallet.getTransactionid() + ":" + String.valueOf(transaction.getId()));
             }
+            walletServiceImp.getRepository().saveAndFlush(wallet);
 
             return RUtils.success();
         } else {
@@ -367,18 +369,21 @@ public class UController {
         if (wallet == null) {
             return RUtils.Err(Renum.NO_WALLTE.getCode(), Renum.NO_WALLTE.getMsg());
         } else {
-            String[] tIds = wallet.getTransactionid().split(":");
-            for (int i = 0; i < tIds.length; i++) {
-                Jtransaction transaction = transactionServiceImp.getRepository().findById(Integer.valueOf(tIds[i])).orElse(null);
-                if (transaction != null) {
-                    ResponseTransaction responseTransaction = new ResponseTransaction();
-                    responseTransaction.setJtransaction(transaction);
-                    User sender = userServiceImp.getRepository().findById(transaction.getUserid());
-                    responseTransaction.setUser(sender);
-                    User targetUser = userServiceImp.getRepository().findById(transaction.getTargetuserid());
-                    responseTransaction.setTargetUser(targetUser);
-                    transactions.add(responseTransaction);
-                };
+            if (wallet.getTransactionid() != null && !wallet.getTransactionid().equals("")) {
+                String[] tIds = wallet.getTransactionid().split(":");
+                for (int i = 0; i < tIds.length; i++) {
+                    Jtransaction transaction = transactionServiceImp.getRepository().findById(Integer.valueOf(tIds[i])).orElse(null);
+                    if (transaction != null) {
+                        ResponseTransaction responseTransaction = new ResponseTransaction();
+                        responseTransaction.setJtransaction(transaction);
+                        User sender = userServiceImp.getRepository().findById(transaction.getUserid());
+                        responseTransaction.setUser(sender);
+                        User targetUser = userServiceImp.getRepository().findById(transaction.getTargetuserid());
+                        responseTransaction.setTargetUser(targetUser);
+                        transactions.add(responseTransaction);
+                    }
+                    ;
+                }
             }
             return RUtils.success(transactions);
         }
@@ -410,9 +415,10 @@ public class UController {
             int n = ran.nextInt(CHARS.length);
             sb.append(CHARS[n]);
         }
-        System.out.println("送往:"+user.getEmail());
+        System.out.println("送往:" + user.getEmail());
         redisUtils.set("security_code" + user.getAccount(), sb.toString(), 60);
-        if(!sendMail(user.getEmail(), "疯狂外卖[支付验证码 🎁]", "验证码[" + sb.toString() + "]"))return RUtils.Err(Renum.EMAIL_FAILED.getCode(), Renum.EMAIL_FAILED.getMsg());
+        if (!sendMail(user.getEmail(), "疯狂外卖[支付验证码 🎁]", "验证码[" + sb.toString() + "]"))
+            return RUtils.Err(Renum.EMAIL_FAILED.getCode(), Renum.EMAIL_FAILED.getMsg());
         return RUtils.success();
     }
 
@@ -494,7 +500,7 @@ public class UController {
 
     @ApiOperation("开通钱包 传入支付密码")
     @GetMapping("/o_wallet")
-    public Result o_wallet(HttpServletRequest request,String payPassword) {
+    public Result o_wallet(HttpServletRequest request, String payPassword) {
         String jwt = request.getHeader("jwt");
         Claims claims = jwtUtils.parseJWT(jwt);
         String subject = claims.getSubject();
@@ -506,7 +512,7 @@ public class UController {
         wallet = walletServiceImp.getRepository().saveAndFlush(wallet);
         switch (user.getUsertype()) {
             case 0:
-                System.out.println("walletid:"+wallet.getId());
+                System.out.println("walletid:" + wallet.getId());
                 Nuser nuser = nusersServiceImp.getRepository().findById(user.getUserdetailsid()).orElse(null);
                 if (nuser == null) throw new NullPointerException();
                 nuser.setWallet(wallet.getId());
@@ -614,43 +620,40 @@ public class UController {
         User user = userServiceImp.getRepository().findByAccount(JSONObject.toJavaObject(jsonObject, User.class).getAccount());
         System.out.println("有文件上传");
         String fileName = file.getOriginalFilename();
-        System.out.println("文件名:"+fileName);
+        System.out.println("文件名:" + fileName);
 
-        File dest = new File(webResourcesPath+File.separator+"advatar"+File.separator+user.getAccount()+File.separator+fileName);
-        System.out.println("文件路径:"+dest.getPath());
+        File dest = new File(webResourcesPath + File.separator + "advatar" + File.separator + user.getAccount() + File.separator + fileName);
+        System.out.println("文件路径:" + dest.getPath());
 
-        if(!dest.getParentFile().exists()){
+        if (!dest.getParentFile().exists()) {
             dest.getParentFile().mkdirs();
         }
-        try{
+        try {
             file.transferTo(dest);
-            String remoteaddr = serverConfig.getUrl()+"advatar/"+user.getAccount()+"/"+fileName;
+            String remoteaddr = serverConfig.getUrl() + "advatar/" + user.getAccount() + "/" + fileName;
             user.setUseradvatar(remoteaddr);
             userServiceImp.getRepository().saveAndFlush(user);
             return RUtils.success();
-        }catch (Exception e) {
+        } catch (Exception e) {
             return RUtils.Err(Renum.FILE_FAILED.getCode(), Renum.FILE_FAILED.getMsg());
         }
     }
-
-
 
 
     @Resource
     CommentServiceImp commentServiceImp;
 
 
-
     @ApiOperation("发布商家评论")
     @GetMapping("/send_shop_comment")
-    public Result send_shop_comment(int suserid,String content) {
+    public Result send_shop_comment(int suserid, String content) {
         String jwt = request.getHeader("jwt");
         Claims claims = jwtUtils.parseJWT(jwt);
         String subject = claims.getSubject();
         JSONObject jsonObject = JSONObject.parseObject(subject);
         User user = userServiceImp.getRepository().findByAccount(JSONObject.toJavaObject(jsonObject, User.class).getAccount());
         Suser suser = suserServiceImp.getRepository().findById(suserid).orElse(null);
-        if(suser == null) throw new NullPointerException();
+        if (suser == null) throw new NullPointerException();
         Comment comment = new Comment();
         comment.setUser(user);
         comment.setSuser(suser);
@@ -683,7 +686,8 @@ public class UController {
         String subject = claims.getSubject();
         JSONObject jsonObject = JSONObject.parseObject(subject);
         User user = userServiceImp.getRepository().findByAccount(JSONObject.toJavaObject(jsonObject, User.class).getAccount());
-        if(!user.getPassword().equals(oldPassword)) return RUtils.Err(Renum.PWD_ERROE.getCode(),Renum.PWD_ERROE.getMsg());
+        if (!user.getPassword().equals(oldPassword))
+            return RUtils.Err(Renum.PWD_ERROE.getCode(), Renum.PWD_ERROE.getMsg());
         user.setPassword(newPassword);
         User save = userServiceImp.getRepository().saveAndFlush(user);
         return RUtils.success(save);
@@ -691,59 +695,62 @@ public class UController {
 
     @ApiOperation("修改邮箱绑定: tag =1:发送更换绑定验证码,tag=2:验证更换邮箱新邮箱验证码,tag=3:新邮箱验证码,tag=4:新邮箱绑定")
     @GetMapping("/change_email")
-    public Result change_email(String code,String newEmail,int tag) throws IOException {
+    public Result change_email(String code, String newEmail, int tag) throws IOException {
         String jwt = request.getHeader("jwt");
         Claims claims = jwtUtils.parseJWT(jwt);
         String subject = claims.getSubject();
         JSONObject jsonObject = JSONObject.parseObject(subject);
         User user = userServiceImp.getRepository().findByAccount(JSONObject.toJavaObject(jsonObject, User.class).getAccount());
         Random ran = new Random();
-        if(code != null||!code.equals("")){
-            if(code.length()>4)return RUtils.Err(Renum.UNKNOWN_ERROR.getCode(), Renum.UNKNOWN_ERROR.getMsg());
+        if (code != null) {
+            if (code.length() > 4) return RUtils.Err(Renum.UNKNOWN_ERROR.getCode(), Renum.UNKNOWN_ERROR.getMsg());
         }
-        if(tag==1){
+        if (tag == 1) {
             StringBuffer sb = new StringBuffer();
             for (int i = 0; i < 4; i++) {
                 int n = ran.nextInt(CHARS.length);
                 sb.append(CHARS[n]);
             }
-            SecurityUtils.getInstance().add(user.getAccount()+"邮箱更换绑定",sb.toString());
-            if(!sendMail(user.getEmail(), "疯狂外卖[验证码 🎁]", sb.toString()))return RUtils.Err(Renum.EMAIL_FAILED.getCode(), Renum.EMAIL_FAILED.getMsg());
-        }else if(tag == 2){
-            String security_code = SecurityUtils.getInstance().getValue(user.getAccount()+"邮箱更换绑定");
-            if(!security_code.equalsIgnoreCase(code)){
+            SecurityUtils.getInstance().add(user.getAccount() + "邮箱更换绑定", sb.toString());
+            if (!sendMail(user.getEmail(), "疯狂外卖[验证码 🎁]", sb.toString()))
+                return RUtils.Err(Renum.EMAIL_FAILED.getCode(), Renum.EMAIL_FAILED.getMsg());
+        } else if (tag == 2) {
+            String security_code = SecurityUtils.getInstance().getValue(user.getAccount() + "邮箱更换绑定");
+            if (!security_code.equalsIgnoreCase(code)) {
                 System.out.println("邮箱换绑定验证失败");
-                return RUtils.Err(Renum.S_CODE_ERROR.getCode(),Renum.S_CODE_ERROR.getMsg());
-            } else{
+                return RUtils.Err(Renum.S_CODE_ERROR.getCode(), Renum.S_CODE_ERROR.getMsg());
+            } else {
                 System.out.println("邮箱换绑定验证成功");
-                SecurityUtils.getInstance().add(user.getAccount()+"邮箱更换绑定","success");
+                SecurityUtils.getInstance().add(user.getAccount() + "邮箱更换绑定", "success");
             }
 
-        }else if(tag == 3){
-                if(user.getEmail()!=null || !user.getEmail().equals("")){
-                    String security_code = SecurityUtils.getInstance().getValue(user.getAccount()+"邮箱更换绑定");
-                    if(!security_code.equals("success"))return RUtils.Err(Renum.UNKNOWN_ERROR.getCode(), Renum.UNKNOWN_ERROR.getMsg());
-                    SecurityUtils.getInstance().remove(user.getAccount()+"邮箱更换绑定");
-                }
-                StringBuffer sb = new StringBuffer();
-                for (int i = 0; i < 4; i++) {
-                    int n = ran.nextInt(CHARS.length);
-                    sb.append(CHARS[n]);
-                }
-                SecurityUtils.getInstance().add(user.getAccount()+"新邮箱验证",sb.toString());
-                if(!sendMail(newEmail, "疯狂外卖[验证码 🎁]", sb.toString()))return RUtils.Err(Renum.EMAIL_FAILED.getCode(), Renum.EMAIL_FAILED.getMsg());
+        } else if (tag == 3) {
+            if (user.getEmail() != null && !Objects.equals(user.getEmail(), "")) {
+                String security_code = SecurityUtils.getInstance().getValue(user.getAccount() + "邮箱更换绑定");
+                if (!security_code.equals("success"))
+                    return RUtils.Err(Renum.UNKNOWN_ERROR.getCode(), Renum.UNKNOWN_ERROR.getMsg());
+                SecurityUtils.getInstance().remove(user.getAccount() + "邮箱更换绑定");
+            }
+            StringBuffer sb = new StringBuffer();
+            for (int i = 0; i < 4; i++) {
+                int n = ran.nextInt(CHARS.length);
+                sb.append(CHARS[n]);
+            }
+            SecurityUtils.getInstance().add(user.getAccount() + "新邮箱验证", sb.toString());
+            if (!sendMail(newEmail, "疯狂外卖[验证码 🎁]", sb.toString()))
+                return RUtils.Err(Renum.EMAIL_FAILED.getCode(), Renum.EMAIL_FAILED.getMsg());
 
-        }else if(tag == 4){
-            String security_code = SecurityUtils.getInstance().getValue(user.getAccount()+"新邮箱验证");
-            if(security_code.equalsIgnoreCase(code)){
+        } else if (tag == 4) {
+            String security_code = SecurityUtils.getInstance().getValue(user.getAccount() + "新邮箱验证");
+            if (security_code.equalsIgnoreCase(code)) {
                 System.out.println("新邮箱绑定验证成功");
-                SecurityUtils.getInstance().remove(user.getAccount()+"新邮箱验证");
+                SecurityUtils.getInstance().remove(user.getAccount() + "新邮箱验证");
                 user.setEmail(newEmail);
                 User save = userServiceImp.getRepository().saveAndFlush(user);
                 return RUtils.success(save);
-            }else{
+            } else {
                 System.out.println("新邮箱绑定验证失败");
-                return RUtils.Err(Renum.S_CODE_ERROR.getCode(),Renum.S_CODE_ERROR.getMsg());
+                return RUtils.Err(Renum.S_CODE_ERROR.getCode(), Renum.S_CODE_ERROR.getMsg());
             }
         }
         return RUtils.success();
@@ -775,7 +782,7 @@ public class UController {
         User user = userServiceImp.getRepository().findByAccount(JSONObject.toJavaObject(jsonObject, User.class).getAccount());
         List<Loginrecord> loginrecordList = new ArrayList<Loginrecord>();
         int size = (int) loginRecordServiceImp.getRepository().count();
-        loginrecordList = loginRecordServiceImp.getRepository().findByUserid(size-10,size,user.getId());
+        loginrecordList = loginRecordServiceImp.getRepository().findByUserid(size - 10, size, user.getId());
         return RUtils.success(loginrecordList);
     }
 
@@ -792,8 +799,8 @@ public class UController {
         User user = userServiceImp.getRepository().findByAccount(JSONObject.toJavaObject(jsonObject, User.class).getAccount());
         Msg msg = msgServiceImp.getRepository().findById(msgid).orElse(null);
         System.out.println("设置消息已读");
-        if(msg != null){
-            if(msg.getAcceptuserid()== user.getId()){
+        if (msg != null) {
+            if (msg.getAcceptuserid() == user.getId()) {
                 msg.setReadalready(1);
                 msgServiceImp.getRepository().saveAndFlush(msg);
             }
@@ -802,8 +809,22 @@ public class UController {
     }
 
 
+    @ApiOperation(".获得一部分消息   size")
+    @GetMapping("/messages")
+    public Result messages(HttpServletRequest request, int size) {
+        String jwt = request.getHeader("jwt");
+        Claims claims = jwtUtils.parseJWT(jwt);
+        String subject = claims.getSubject();
+        JSONObject jsonObject = JSONObject.parseObject(subject);
+        User user = userServiceImp.getRepository().findByAccount(JSONObject.toJavaObject(jsonObject, User.class).getAccount());
+        //获得普通用户订单
+        List<Msg> msgs = new ArrayList<>();
+        msgs = msgServiceImp.getRepository().getAll(size, size + 20, user.getId());
+        return RUtils.success(msgs);
+    }
 
-    public void createSecurityHtml(){
+
+    public void createSecurityHtml() {
         String html = "<!DOCTYPE html>\n" +
                 "<html>\n" +
                 "<head>\n" +

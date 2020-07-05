@@ -35,6 +35,10 @@ public enum Renum {
     EMAIL_FAILED(22,"邮箱无效"),
     FILE_FAILED(23,"文件上传失败"),
     HAVE_ORDER_NOT_COMPLETE(24,"还有订单未完成"),
+    IDCARD_CANT_USE(25,"身份证号码已被注册"),
+    SHOPNAME_CANT_USE(26,"店名已被注册"),
+    PHONE_FAIL(27,"手机号码无效"),
+    IDCARD_FAIL(27,"身份证号码无效"),
     ;
     private Integer code;
     private String msg;
