@@ -1,0 +1,98 @@
+.addressDialog {
+    display: none;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    height: 500px;
+    width: 700px;
+    border-radius: 20px;
+    box-shadow: 10px 10px 20px;
+    background: white;
+    z-index: 9999;
+    overflow: hidden;
+    position: fixed;
+}
+
+.addressDialog .dialog_close_btn {
+    height: 30px;
+    width: 30px;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    transition: 0.5s;
+}
+
+.addressDialog .dialog_close_btn img {
+    height: 100%;
+    width: 100%;
+}
+
+.addressDialog .dialog_content {
+    margin-top: 50px;
+    width: 700px;
+    height: 450px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.addressDialog .dialog_content input {
+    margin-left: 20px;
+    border-radius: 10px;
+    border: 1px solid;
+    padding: 10px;
+}
+
+.addressDialog .dialog_content div button {
+    height: 30px;
+    width: 100px;
+    background: #31B0D5;
+    color: white;
+    border: none;
+    margin: 10px;
+    border-radius: 10px;
+    transition: 0.5s;
+}
+
+.addressDialog .dialog_content div button:hover {
+    box-shadow: 2px 5px 7px;
+    color: black;
+}
+
+.addressDialog .dialog_content div button:active {
+    box-shadow: 0 0 0;
+    color: white;
+}
+
+.all_address{
+    width: 100%;
+    height: 100px;
+}
+.all_address ul{
+    height: 100%;
+    width: 100%;
+}
+
+.all_address ul li{
+    padding: 5px;
+    margin-left: 20px;
+    float: left;
+    width: 200px;
+    height: 100%;
+    border: 1px dashed;
+    border-radius:10px;
+    display:flex;
+    flex-direction: column;
+}
+.all_address ul .onSelect{
+    padding: 5px;
+    margin-left: 20px;
+    float: left;
+    width: 200px;
+    height: 100%;
+    border-radius:10px;
+    display:flex;
+    flex-direction: column;
+    border: 1px dashed red;
+}

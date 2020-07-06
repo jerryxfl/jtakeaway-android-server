@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户注册</title>
+    <!-- Bootstrap -->
+    <!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+    <!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+
+        .bg {
+            height: 600px;
+            background-image: url(image/timg.jpg);
+            background-size: cover;
+        }
+
+        .form {
+            padding: 40px;
+            margin-top: 175px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .footer {
+            height: 60px;
+            padding-top: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .page-header {
+            padding-bottom: 9px;
+            margin: 0px 0 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .container-fluid {
+            padding-right: 15px;
+            padding-left: 15px;
+            margin-right: auto;
+            margin-left: auto;
+            margin-top: -18px;
+        }
+
+        .dialog {
+            height: 300px;
+            width: 500px;
+            position: fixed;
+            justify-content: center;
+            border-radius: 10px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%,-50%);
+            background: white;
+            box-shadow: 2px 3px 5px #1b1e21;
+            display: none;
+        }
+
+        a.zhuce2:link {
+            color: white;
+        }
+
+        /* 未访问的链接 */
+        a.zhuce2:visited {
+            color: floralwhite;
+        }
+
+        /* 已访问的链接 */
+        a.zhuce2:hover {
+            color: black;
+        }
+
+        /* 鼠标划过链接 */
+        a.zhuce2:active {
+            color: #0000FF;
+        }
+
+        /* 已选中的链接 */
+        a.zhuce3:link {
+            color: white;
+        }
+
+        /* 未访问的链接 */
+        a.zhuce3:visited {
+            color: floralwhite;
+        }
+
+        /* 已访问的链接 */
+        a.zhuce3:hover {
+            color: black;
+        }
+
+        /* 鼠标划过链接 */
+        a.zhuce3:active {
+            color: #0000FF;
+        }
+
+        /* 已选中的链接 */
+
+
+    </style>
+</head>
+<body>
+<div class="page-header">
+    <h1>&nbsp;&nbsp;&nbsp;疯狂の外卖</h1>
+</div>
+<div class="container-fluid">
+    <div class="row bg">
+        <div class="col-md-offset-6 col-md-4 col-sm-offset-3 col-sm-7 col-xs-offset-2 col-xs-8 col-lg-offset-6 col-lg-3 form">
+            <form class="form-horizontal" id="loginForm">
+
+
+                <div class="form-group">
+                    <label for="username" class="col-sm-4 control-label">昵称</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" id="username" placeholder="请输入昵称">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="password" class="col-sm-4 control-label">密码</label>
+                    <div class="col-sm-8">
+                        <input type="password" class="form-control" id="password" placeholder="请输入密码">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="validateCode" class="col-sm-4 control-label">验证码</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" id="validateCode" placeholder="验证码">
+                    </div>
+                    <div class="col-sm-4">
+                        <img src="image/yanzheng.png" alt="" width="75px" height="35px">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="button" id="submitBtn" class="btn btn-success" style="width: 40%;"
+                                onclick="sign()">注册
+                        </button>
+                        <a href="denglu1-jie.html">
+                            <button type="button" id="submitBtn1" class="btn btn-info" style="width: 40%;">返回</button>
+                        </a>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-1 col-sm-5">
+                        <div class="checkbox">
+                            <label>
+                                <a class="zhuce2" href="zhuce2-jie.html">商家注册</a>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-sm-offset-1 col-sm-5">
+                        <div class="checkbox">
+                            <label>
+                                <a class="zhuce3" href="zhuce3-jie.html">骑手注册</a>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <span style="color: red;" id="tip"></span>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>©版权所有：蒋瑞君徐杰桑</p>
+        <p>邮编：5555555 联系邮箱：9090980@163.com</p>
+    </div>
+</div>
+
+
+<div class="dialog">
+    <div class="closeBtn" style="position: absolute;right: 10px;top: 10px;height: 30px;width: 30px;"><img src="image/cc-close-crude.png" style="width: 100%;height: 100%" alt=""></div>
+    <div style="display:flex;flex-direction: column;justify-content: center;height: 100%;width: 100%;text-align: center"><p class="sign_account">你的账号为:1072059168</p></div>
+</div>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet"/>
+<script src="js/fun/jquery.js"></script>
+<script src="js/fun/jquery.cookie.js"></script>
+<script src="js/fun/ajax.js"></script>
+<script src="js/fun/base64.js"></script>
+<script src="js/fun/code.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+            $(".closeBtn").click(function () {
+                $(".dialog").toggle(500,"swing")
+            })
+    })
+
+    function sign() {
+        let userName = $("#username").val();
+        let passWord = $("#password").val();
+        let code = $("#validateCode").val();
+        if(userName===""){
+            toastr.warning("请填写你的昵称");
+            return;
+        }
+        if(passWord===""){
+            toastr.warning("请填写密码");
+            return;
+        }
+
+
+        if (code !== "5809") {
+            toastr.warning("验证码错误");
+            return;
+        }
+
+
+        let data = {
+            "address": "",
+            "idcard": "",
+            "password": passWord,
+            "phoneNumber": "",
+            "shopName": "",
+            "type": 0,
+            "userNickName": userName
+        };
+
+        post("authen/Sign", data, signSuccess);
+    }
+
+    function signSuccess(code, msg, data) {
+        if (code === 10000) {
+            toastr.success("注册成功");
+            console.log(data);
+            $(".sign_account").text("你的账号为:"+data.account);
+            $(".dialog").toggle(500,"swing");
+        } else {
+            toastr.warning(msg);
+        }
+
+    }
+
+
+</script>
+
+
+</body>
+</html>

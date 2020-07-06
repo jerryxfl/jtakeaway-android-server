@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<title>交易记录</title>
+
+<link rel="stylesheet" type="text/css" href="css/style.css"/>
+
+<script type="text/javascript" src="js/jquery-1.12.3.min.js"></script>
+<script type="text/javascript" src="js/index.js"></script>
+
+</head>
+
+<body style="background:url('image/a.jpg')">
+<div class="fg-box" id="box">
+	<div class="fg-line"></div>
+	<dl>    	
+        <dd>
+        	<div class="fg-left"><span>2小时前</span></div>
+            <div class="fg-right">
+            <h4>李**购了10元</h4>
+            <a href="#">银亿1号0617040</a>
+            </div>
+        </dd>
+        <dd>
+        	<div class="fg-left"><span>2小时前</span></div>
+            <div class="fg-right">
+            <h4>李**购了20元</h4>
+            <a href="#">银亿1号0617040</a>
+            </div>
+        </dd>
+        <dd>
+        	<div class="fg-left"><span>2小时前</span></div>
+            <div class="fg-right">
+            <h4>李**购了30元</h4>
+            <a href="#">银亿1号0617040</a>
+            </div>
+        </dd>
+        <dd>
+        	<div class="fg-left"><span>3小时前</span></div>
+            <div class="fg-right">
+            <h4>李**购了40元</h4>
+            <a href="#">银亿1号0617040</a>
+            </div>
+        </dd>
+        <dd>
+        	<div class="fg-left"><span>4小时前</span></div>
+            <div class="fg-right">
+            <h4>李**购了50元</h4>
+            <a href="#">银亿1号0617040</a>
+            </div>
+        </dd>
+        <dd>
+        	<div class="fg-left"><span>4小时前</span></div>
+            <div class="fg-right">
+            <h4>李**购了60元</h4>
+            <a href="#">银亿1号0617040</a>
+            </div>
+        </dd>
+    </dl>
+</div>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet"/>
+<script src="js/fun/jquery.js" type="text/javascript"></script>
+<script src="js/fun/jquery.cookie.js" type="text/javascript"></script>
+<script src="js/fun/ajax.js" type="text/javascript"></script>
+<script src="js/fun/base64.js" type="text/javascript"></script>
+<script src="js/fun/code.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+    $(function () {
+        if ($.cookie("jwt") === "null") {
+            //未登录
+            window.location.href = "denglu1-jie.html";
+        } else {
+            //已登录
+            console.log($.cookie("jwt"));
+        }
+    })
+</script>
+</body>
+</html>

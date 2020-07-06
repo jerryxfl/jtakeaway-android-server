@@ -1,0 +1,473 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>菜品详情</title>
+    <meta name="Keywords" content="">
+    <meta name="Description" content="">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+
+    <link href="css/mall.css" rel="stylesheet" type="text/css">
+    <link href="css/address.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" src="js/jquery.Spinner.js"></script>
+    <style>
+        .menuItem {
+            padding: 10px;
+            margin: 10px;
+            overflow: hidden;
+            box-shadow: 1px 2px 3px #222222;
+            width: 95%;
+            height: 100px;
+            border-radius: 10px;
+            border: 1px solid #222222;
+            transition: 0.5s;
+            position: relative;
+        }
+
+        .menuItem .menuImg {
+            border-radius: 10px;
+            height: 100%;
+            width: 100px;
+            background: #222222;
+            overflow: hidden;
+            box-shadow: 1px 2px 3px #5a5a5a;
+        }
+
+        .menuItem .menuImg img {
+            width: 100%;
+            height: 100%
+        }
+
+        .menuItem .menuInfo {
+            position: absolute;
+            top: 10px;
+            left: 150px;
+        }
+
+        .menuItem .menuInfo p {
+            margin-top: 10px;
+        }
+
+        .mall_main {
+            width: 80%;
+            margin-left: 10%;
+        }
+
+        #banner_box {
+            height: 400px;
+            width: 80%;
+            margin: 10;
+            border-radius: 20px;
+            border: 1px solid #222222;
+            box-shadow: 2px 5px 10px #919191;
+            margin-left: 10%;
+        }
+
+        #banner_box ul {
+            height: 400px;
+        }
+
+        #banner_box ul li {
+            width: 100%;
+            height: 400px;
+        }
+
+        #banner_box ul li img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+
+<body class="body_color">
+    <div class="mall_main">
+        <div id="child_header">
+            <div class="goback"><a href="javascript:history.back(-1)"><i></i></a></div>
+            <div class="current_location"><span>菜品详情（果木炙烤雪花牛排）</span></div>
+        </div>
+
+        <div id="banner_box" class="box_swipe">
+            <ul>
+                <li><img src="image/1.jpg"></li>
+                <li><img src="image/2.jpg"></li>
+                <li><img src="image/3.jpg"></li>
+                <li><img src="image/4.jpg"></li>
+            </ul>
+            <ol>
+                <li class="on"></li>&nbsp;
+                <li></li>&nbsp;
+                <li></li>&nbsp;
+                <li></li>&nbsp;
+            </ol>
+        </div>
+        <a class="praise_icon" href="#">2658</a>
+        <div class="des_goods">
+            <p class="description">新鲜金枪鱼配牛油果泥小萝卜&生姜青柠汁 · 牛排家腌制生牛肉薄片配帕玛森芝士芝麻菜 </p>
+            <p><span class="pr">原价</span><span class="sp_style2 price">¥500</span></p>
+            <p><span class="pr">促销价</span><span class="sp_style3 lowPrice">¥488</span></p>
+            <p><span class="pr">促销有效期</span><span class="failTime">2020-7-05~2020-7-30</span></p>
+            <hr/>
+            <div class="spec_select">
+                <ul>
+                    <li>
+                        <span>【主菜】（任选1）</span>
+                        <em class="click size1" onclick="selectType(1)">麻辣小龙虾x1</em>
+                        <em onclick="selectType(2)" class="size2">麻辣小龙虾x2</em>
+                        <em onclick="selectType(3)" class="size3">麻辣小龙虾x3</em>
+                    </li>
+                </ul>
+            </div>
+            <hr/>
+        </div>
+
+        <div class="box_list">
+            <ul class="box_nav">
+                <li class="current"><a>菜品详情</a></li>
+                <li><a>评论(230)</a></li>
+                <li><a>成交记录</a></li>
+                <li><a>菜品咨询</a></li>
+            </ul>
+            <div class="goods_box menuList">
+            </div>
+
+            <div class="goods_box" style="display: none">
+                <h3>累计评价(25)：</h3>
+                <div class="evaluate">
+                    <span>18762678928</span><span class="text_t">2020-6-4</span>
+                    <p>脆嫩bai酥香，麻辣味鲜！</p>
+                    <hr/>
+                </div>
+                <div class="evaluate">
+                    <span>18762678928</span><span class="text_t">2020-7-3</span>
+                    <p>肉滑溜醇香，肥而不腻，食之软烂醇香。当你咀嚼一块，满嘴流油的时候，你会感觉它一点不肥腻。</p>
+                    <hr/>
+                </div>
+                <div class="evaluate">
+                    <span>18762678928</span><span class="text_t">2020-7-5</span>
+                    <p>口感除了香嫩之外,有因骨头带筋,在咀嚼时有多了一份咀劲！</p>
+                    <hr/>
+                </div>
+            </div>
+            <div class="goods_box" style="display: none">
+                <div class="deal_list">
+                    <p><span>18762678928</span> <span>1<em>果木炙烤雪花牛排235g</em></span><span>2020-05-04</span></p>
+                    <p><span>18762678928</span> <span>1<em>果木炙烤安格斯肋眼皇 235g</em></span><span>2020-06-04</span></p>
+                    <p><span>18762678928</span> <span>1<em>果木炙烤雪花牛排235g</em></span><span>2020-06-09</span></p>
+                    <p><span>18762678928</span> <span>1<em>果木炙烤黑椒牛排235g</em></span><span>2020-7-04</span></p>
+                </div>
+            </div>
+            <div class="goods_box" style="display: none">
+                <div class="ask_list">
+                    <textarea></textarea>
+                    <input class="btn_remove" type="button" value="提交" />
+                </div>
+            </div>
+        </div>
+        <div class="bottomdiv clearfix">
+            <div class="inner clearfix">
+                <div class="fl btn_sure">
+                    <p href="" onclick="buy()">立即购买</a>
+                </div>
+                <div class="fl btn_buy_detail">
+                    <a class="addshop_cat">加入订单</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+
+
+    <div class="addressDialog">
+        <div class="dialog_close_btn" onclick="closeDialog()"><img src="image/cc-close-crude.png" alt=""></div>
+        <div class="dialog_content">
+            <h1>新增收货地址</h2>
+                <div>地&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;区<input type="text" id="addressValue" placeholder="请输入你的地区"></div>
+                <div>详细地址<input type="text" id="detailAddressValue" placeholder="请输入你的详细地址"></div>
+                <div>联&nbsp;&nbsp;系&nbsp;&nbsp;人<input type="text" id="contactValue" placeholder="请输入联系人名字"></div>
+                <div>手机号码<input type="text" id="phoneNumberValue" placeholder="请输入联系号码"></div>
+                <div><button onclick="closeDialog()">取消</button>
+                    <button onclick="addAddress()">提交</button></div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <script src="js/swipe2.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(function() {
+            new Swipe(document.getElementById('banner_box'), {
+                speed: 500,
+                auto: 3000,
+                callback: function() {
+                    var lis = $(this.element).next("ol").children();
+                    lis.removeClass("on").eq(this.index).addClass("on");
+                }
+            });
+        });
+    </script>
+    <script type="text/javascript">
+        $(function() {
+            $(".spec_select ul li em").click(function() {
+                $(this).addClass("click").siblings().removeClass("click");
+            })
+        })
+    </script>
+    <!--商品数量加减-->
+    <script type="text/javascript">
+        $(function() {
+            $("#a").Spinner({
+                value: 1,
+                min: 0,
+                len: 3,
+                max: 10000
+            });
+        });
+    </script>
+    <script type="text/javascript">
+        jQuery(function($) {
+            $('.box_list ul li').click(function() {
+                var index = $('.box_list ul li').index(this);
+                $(this).addClass('current').siblings('li').removeClass('current');
+                $('.box_list .goods_box:eq(' + index + ')').show().siblings('.goods_box').hide();
+            })
+        })
+    </script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <script src="js/fun/jquery.js"></script>
+    <script src="js/fun/jquery.cookie.js"></script>
+    <script src="js/fun/ajax.js"></script>
+    <script src="js/fun/base64.js"></script>
+    <script src="js/fun/code.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+
+    <script type="text/javascript">
+        let size = 0;
+        let foodSize = 1;
+        let MenuData;
+        let addrss;
+
+        function closeDialog() {
+            $(".addressDialog").slideUp(200);
+        }
+
+
+        function selectType(size) {
+            console.log("购买类型:" + size);
+            foodSize = size;
+        }
+
+        $(function() {
+            if ($.cookie("jwt") === "null") {
+                //未登录
+                window.location.href = "denglu1-jie.html";
+            } else {
+                //已登录
+                console.log($.cookie("jwt"));
+                analysisData();
+            }
+        })
+
+
+        //解析参数
+        function analysisData() {
+            let url = window.location.search;
+            let s;
+            try {
+                s = url.indexOf("?");
+            } catch (err) {
+                window.location.href = "index-hao.html";
+            }
+            let dataBase64 = url.substring(s + 6);
+            if (dataBase64 === "" || dataBase64 === "null") {
+                window.location.href = "index-hao.html";
+            }
+            let data = BASE64.decode(dataBase64);
+            let dataJson = eval('(' + data + ')');
+            setPageData(dataJson);
+        }
+
+
+        function setPageData(data) {
+            MenuData = data;
+            console.log("设置页面数据")
+            console.log(data);
+            let description = $(".description");
+            let price = $(".price");
+            let lowPrice = $(".lowPrice");
+            let failTime = $(".failTime");
+
+            description.text(data.menu.fooddesc);
+            price.text("$" + data.menu.foodprice);
+            lowPrice.text("$" + data.menu.foodlowprice);
+            failTime.text(data.menu.lowpricefailed)
+
+
+            let size1 = $(".size1");
+            let size2 = $(".size2");
+            let size3 = $(".size3");
+
+            size1.text(data.menu.foodname + "X1");
+            size2.text(data.menu.foodname + "X2");
+            size3.text(data.menu.foodname + "X3");
+
+
+            getMenu(data.suser.id, size);
+            getAddress();
+        }
+
+
+        function getMenu(suerid, size) {
+            get("G/g_shops_menus?shopid=" + suerid + "&size=" + size, success);
+        }
+
+
+        function success(code, msg, data) {
+            if (code === 10000) {
+                let menuList = $(".menuList");
+                // console.log(data)
+                let length = data.length;
+                size = Number(size) + Number(length);
+                if (length === 0) {
+                    toastr.warning("没有更多了");
+                } else {
+                    for (let i = 0; i < length; i++) {
+                        let content = '<div class="menuItem">' +
+                            '<div class="menuImg">' +
+                            '<img src="' + data[i].foodimg + '">' +
+                            '</div>' +
+                            '<div class="menuInfo">' +
+                            '<h1>' + data[i].foodname + '</h1><p>' + data[i].fooddesc + '</p>' +
+                            '</div>' +
+                            '</div>';
+
+                        menuList.append(content);
+                    }
+                }
+            } else {
+                toastr.warning(msg);
+            }
+        }
+
+
+        function addAddress() {
+            let addressValue = $("#addressValue");
+            let detailAddressValue = $("#detailAddressValue");
+            let contactValue = $("#contactValue");
+            let phoneNumberValue = $("#phoneNumberValue");
+
+            if (addressValue.val() === "") {
+                toastr.warning("请输入地址");
+                return;
+            }
+
+            if (detailAddressValue.val() === "") {
+                toastr.warning("请输入详细地址");
+                return;
+            }
+
+
+            if (contactValue.val() === "") {
+                toastr.warning("请输入联系人姓名");
+                return;
+            }
+
+            if (phoneNumberValue.val() === "") {
+                toastr.warning("请输入联系号码");
+                return;
+            }
+
+            let data = {
+                "address": addressValue.val(),
+                "contact": contactValue.val(),
+                "detaileaddress": detailAddressValue.val(),
+                "id": 0,
+                "label": "",
+                "phone": phoneNumberValue.val(),
+            }
+
+
+            post("U/a_address", data, addAddressSuccess);
+        }
+
+
+        function addAddressSuccess(code, msg, data) {
+            if (code === 10000) {
+                toastr.success("地址添加成功");
+                console.log(data);
+                addrss =data;
+            } else {
+                toastr.warning(msg);
+            }
+
+        }
+
+
+        function getAddress() {
+            get("U/g_address", getAdressSuccess);
+        }
+
+
+        function getAdressSuccess(code, msg, data) {
+            if (code === 10000) {
+                toastr.success('订单创建成功');
+                console.log(data)
+
+
+            } else {
+                toastr.warning(msg);
+            }
+        }
+
+
+
+        function buy() {
+            if (addrss === null || addrss === undefined) {
+                $(".addressDialog").slideDown(200);
+                return;
+            }
+
+            get("N/order?sId=" + MenuData.suser.id + "&mId=" + MenuData.id + "&mSize=" + foodSize + "&addressId=" + addrss.id, createOrder_success);
+
+
+        }
+
+        function createOrder_success(code, msg, data) {
+            if (code === 10000) {
+                toastr.success('订单创建成功');
+
+
+
+            } else {
+                toastr.warning(msg);
+            }
+
+        }
+    </script>
+</body>
+
+</html>

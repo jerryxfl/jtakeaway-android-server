@@ -1,0 +1,119 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+body{
+    background-image: linear-gradient(125deg,peachpuff,#D0D8C6,#f0ffff,#ffe4e1);
+    background-size: 400%;
+    animation: linear_background 15s infinite;
+}
+#Register{
+    width: 100%;
+    margin: auto;
+}
+#header{
+    width: 100%;
+    height: 130px;
+    margin: 10px auto 0;
+}
+.logo{
+    height: 80px;
+    width: 1000px;
+    margin: 0 auto;
+}
+.pull-right{
+    width: 100px;
+    margin-right: 70%;
+    margin-top: 25px;
+    float: right;
+}
+#header p{
+    width: 100%;
+    height: 50px;
+    font-size: 13px;
+    color: #9e9eaa;
+    line-height: 50px;
+    text-align: center;
+    background: #FFF8F0;
+}
+
+#container{
+    height:100%;
+    width: 100%;
+    position: relative;
+}
+.logo_text{
+    width: 550px;
+    height: 700px;
+    margin: auto;
+}
+.logo_text p{
+    width: 100%;
+    height: 40px;
+    font-size: 13px;
+    color: #9e9eaa;
+    line-height: 40px;
+    text-align: center;
+    background: #f8f1e9;
+}
+h3{
+    margin-left: 40px;
+    font-style: initial;
+    padding-bottom: 20px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #d2d2d2;
+}
+
+.login_from{
+    width: 100%;
+    height: 560px;
+    text-align: center;
+}
+table{
+    height: 460px;
+    width: 100%;
+}
+
+form tr{
+    margin-top: 10px;
+}
+form td input{
+    width: 190px;
+    height: 30px;
+    margin-right: 50px;
+    background-color: rgba(255, 255, 255, 0.6);
+}
+form  td b{
+    font-weight: initial;
+}
+.login_from span{
+    color: #141415;
+    font-size: 12px;
+    font-family: '\5b8b\4f53';
+    margin-left: 210px;
+    position: relative;
+}
+.checkbox{
+    left: -15px;
+    position: absolute;
+    top: 1px;
+
+}
+.login_btn{
+    height: 40px;
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.login_btn input:hover{
+    background-color: #FFFFDAB9;
+    color: white;
+}
+.login_btn input{
+    width: 102px;
+    height:40px;
+    line-height: 35px;
+    background-color: rgba(255, 255, 255, 0.6);
+    font-size: 20px;
+    font-family: 'Microsoft YaHei';
+}

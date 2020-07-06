@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>我的订单</title>
+    <link rel="stylesheet" href="css/cart.css">
+
+</head>
+
+<body>
+
+    <div class="float-box">
+
+        <div class="confirm-box">
+
+            <h4 class="confirm-title">
+                <span></span>
+                <i class="close-btn">
+
+                    <span class="line-left"></span>
+                    <span class="line-right"></span>
+
+                </i>
+            </h4>
+
+            <div class="confirm-content">
+
+                请选择您要删除的菜品？
+
+            </div>
+
+            <div class="confirm-btn">
+
+                <a href="javascript:;" class="delete">删除</a>
+                <a href="javascript:;" class="cancel">取消</a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="header">
+        <div class="header-center">
+        </div>
+    </div>
+
+    <div class="mz-foot"></div>
+
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/cart.js"></script>
+
+
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet"/>
+    <script src="js/fun/jquery.js"></script>
+    <script src="js/fun/jquery.cookie.js"></script>
+    <script src="js/fun/ajax.js"></script>
+    <script src="js/fun/base64.js"></script>
+    <script src="js/fun/code.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<script type="text/javascript">
+    $(function () {
+        if ($.cookie("jwt") === "null") {
+            //未登录
+            window.location.href = "denglu1-jie.html";
+        } else {
+            //已登录
+            console.log($.cookie("jwt"));
+            getOrders();
+        }
+    })
+
+    function getOrders(){
+        get("N/all_orders",getOrderSuccess);
+    }
+
+
+
+    function getOrderSuccess(code,msg,data){
+        if(code === 10000){
+            console.log(data)
+            $.each(data, function (i, e) {
+                let newTr = '';
+                let $newLi = $('<li class="goods-list">\
+                        <table class= "goods-header" >\
+                            <tr>\
+                                <td colspan="5">\
+                                    <a href="javascript:;" class="check-label check-local-part">\
+                                        <i class="checkbox">\
+                                            <span class="check-mark"></span>\
+                                        </i>\
+                                        <em class="check-name">' + i + '</em>\
+                                    </a>\
+                                </td>\
+                            </tr>\
+                        </table >\
+                        <table class="goods-body">\
+                        </table>\
+                    </li>');
+
+                $(e).each(function (i, e) {
+                    newTr += '<tr>\
+                        <td class="goods-col-select">\
+                            <a href="javascript:;" class="check-label check-product">\
+                                <i class="checkbox">\
+                                    <span class="check-mark"></span>\
+                                </i>\
+                            </a>\
+                            <a href="javascript:;" class="goods-img">\
+                                <img src="'+ e.menus.foodimg + '"\
+                                    alt="">\
+                            </a>\
+                            <a href="javascript:;" class="goods-info">\
+                                <h4 class="goods-info-title">'+ e.menus.foodname + '</h4>\
+                                <p class="goods-info-tips">'+ e.menus.fooddesc + '</p>\
+                            </a>\
+                        </td>\
+                        <td class="goods-col-price">\
+                            <span>'+ e.menus.foodprice + '</span>\
+                        </td>\
+                        <td class="goods-col-volumes">\
+                            <div class="num-ctrl-area clearfix">\
+                                <button class="minus">-</button>\
+                                <input type="text" value="1" class="input">\
+                                <button class="plus">+</button>\
+                                <em class="hint">限购10件</em>\
+                            </div>\
+                        </td>\
+                        <td class="goods-col-total">\
+                            <span></span>\
+                        </td>\
+                        <td class="goods-col-ctrl">\
+                            <span>- -</span>\
+                            <i class="del-product">\
+                                <span class="line-left"></span>\
+                                <span class="line-right"></span>\
+                            </i>\
+                        </td>\
+                    </tr>';
+                });
+
+                $newLi.children("table.goods-body").append(newTr);
+                $newLi.appendTo($("ul.goods-ul"));
+
+            });
+
+        }else{
+            toastr.warning(msg);
+        }
+    }
+
+</script>
+
+</body>
+
+</html>

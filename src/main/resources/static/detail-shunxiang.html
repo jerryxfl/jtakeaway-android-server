@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>详情</title>
+    <link href="css/detail-shunxiang.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="main">
+    <div class="container1">
+        <div class="imag">
+            <img src="image/1.jpg" width="300px" height="300px">
+        </div>
+        <div class="describe">
+            <ul>
+                <li class="name">菜名：红烧牛肉</li>
+                <li class="address">地址:徐氏中餐（成都金融城店）</li>
+                <li class="price">价格：45元</li>
+                <li class="introduce">介绍：如果一个人影响到了你的情绪，你的焦点应该放在控制自己的情绪上，而不是影响你情绪的人身上。只有这样，才能真正自信起来。</li>
+
+            </ul>
+        </div>
+        <div class="con-btn">
+            <li class="buy"><a>购买</a></li>
+            <li class="shopcat"><a>购物车</a></li>
+        </div>
+    </div>
+    <div class="title">
+        <h1>本店推荐</h1>
+    </div>
+
+
+    <div class="container2" >
+
+    </div>
+</div>
+
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet"/>
+<script src="js/fun/jquery.js"></script>
+<script src="js/fun/jquery.cookie.js"></script>
+<script src="js/fun/ajax.js"></script>
+<script src="js/fun/base64.js"></script>
+<script src="js/fun/code.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<script type="text/javascript">
+    let size = 0;
+
+    $(function () {
+        if ($.cookie("jwt") === "null") {
+            //未登录
+            window.location.href = "denglu1-jie.html";
+        } else {
+            //已登录
+            console.log($.cookie("jwt"));
+            analysisData();
+        }
+    })
+
+
+    //解析参数
+    function analysisData() {
+        let url = window.location.search;
+        let s;
+        try {
+            s=url.indexOf("?");
+        } catch(err) {
+            window.location.href="index-hao.html";
+        }
+        let dataBase64 = url.substring(s+6);
+        if(dataBase64===""||dataBase64==="null"){
+            window.location.href="index-hao.html";
+        }
+        let data = BASE64.decode(dataBase64);
+        let dataJson = eval('(' + data + ')');
+        setPageData(dataJson);
+    }
+
+
+    function setPageData(data) {
+        console.log(data)
+        let shopName = $(".name");
+        let address = $(".address");
+        let price = $(".price");
+        let introduce = $(".introduce");
+
+        shopName.text("菜名:"+data.suser.shopname);
+        address.text("地址:"+data.suser.shopaddress);
+        price.text("价格: "+data.menu.foodprice+"元");
+        introduce.text("介绍:"+data.suser.dscr);
+        getMenu(data.suser.id,size)
+    }
+    
+
+    function  getMenu(suerid,size) {
+        get("http://121.199.9.234:8080/api-0.1/G/g_shops_menus?shopid="+suerid+"&size="+size,success);
+    }
+
+
+    function success(code, msg, data) {
+        if(code===10000){
+            let container = $(".container2");
+            console.log(data)
+            let length = data.length;
+            size = Number(size)+Number(length);
+            if(length===0){
+                toastr.warning("没有更多了");
+            }else{
+                for (let i = 0; i < length; i++) {
+                    let content = '<div class="recommend" style="margin-top: 50px;"><div class="dishimg"><img src="'+data[i].foodimg+'" width="200px" height="150px"></div>' +
+                        '<div class="dishdes"><ul><li class="diashname">菜名: '+data[i].foodname+'</li><li class="price">价格: '+data[i].foodprice+'元</li></ul></div>' +
+                        '<div class="purchase"><ul><li class="btn"><button>购买</button><li class="btn"><button >购物车</button></li></li></ul></div>' +
+                        '<div class="line"></div>' +
+                        '</div>';
+                    container.append(content);
+                }
+            }
+        }else{
+            toastr.warning(msg);
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -38,6 +38,9 @@ public class JWebMvcConfigurer implements WebMvcConfigurer {
                 .addResourceLocations("classpath:/META-INF/resources/webjars/");
 
         registry.addResourceHandler("/**")
+                .addResourceLocations("classpath:/templates/");
+
+        registry.addResourceHandler("/**")
                 .addResourceLocations("classpath:/static/");
 
         registry.addResourceHandler(staticAccessPath)

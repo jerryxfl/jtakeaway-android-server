@@ -1,0 +1,113 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+body{
+    background-image: linear-gradient(125deg,peachpuff,#D0D8C6,#f0ffff,#ffe4e1);
+    background-size: 400%;
+    animation: linear_background 15s infinite;
+}
+
+
+a{
+    text-decoration: none;
+}
+li{
+    list-style: none;
+}
+h1{
+    color: #f65a5b;
+}
+.main{
+    width: 100%;
+    height: 100%;
+}
+.container{
+    float: left;
+    width: 100%;
+    height: 400px;
+}
+.imag{
+    width: 300px;
+    height: 300px;
+    margin-left: 200px;
+    margin-top: 50px;
+}
+.describe{
+    width: 730px;
+    height: 300px;
+    margin-left: 520px;
+    margin-top: -300px;
+    line-height: 40px;
+}
+
+.describe a:hover{
+    color: #fff;
+}
+.con-btn{
+    float: right;
+    margin-top: -50px;
+    font-size: 20px;
+    line-height: 50px;
+    margin-right: 80px;
+
+}
+.con-btn a{
+    color: #ffffff;
+}
+.con-btn a:hover{
+    color: #000;
+}
+.recommend{
+    float: left;
+    width: 100%;
+    height: 203px;
+}
+.title h1{
+    margin-left: 200px;
+}
+.dishimg{
+    width: 200px;
+    height: 150px;
+    margin-left: 200px;
+    margin-top: 30px;
+}
+.dishdes{
+    margin-left: 720px;
+    margin-top: -150px;
+    width: 200px;
+    height: 150px;
+}
+.dishdes li{
+    line-height: 40px;
+    text-align: left;
+
+}
+.purchase{
+    float: right;
+    margin-top: -140px;
+    line-height: 50px;
+    margin-right: 80px;
+}
+.line{
+    margin-left: 200px;
+    width: 1270px;
+    height: 1px;
+    border-bottom:1px dashed #FFFFDAB9 ;
+    margin-top: 20px;
+}
+.btn button{
+    /*background: #f65a5b;*/
+    width: 60px;
+    height: 40px;
+    color: #000000;
+    background:#ffe4e1;
+    background:-webkit-linear-gradient(left,peachpuff 0%,#f0ffff 80%,#ffe4e1 100%);
+    background:linear-gradient(to right, #ffdab9 0%,#f0ffff 50%,#ffe4e1 80%,#D0D8C6 100%);
+}
+
+.container2{
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+}

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>疯狂外卖-下载</title>
+    <style>
+        body{
+            margin:0;
+            padding:0;
+        }
+        .downBtn{
+            position:absolute;
+            width:100px;
+            height:40px;
+            border-radius: 10px;
+            top: 5%;
+            right: 5%;
+            background: black;
+            color:white;
+            font-weight: bold;
+            text-align: center;
+            line-height:40px;
+            cursor: pointer;
+            transition: 0.5s;
+        }
+        .downBtn:hover{
+            box-shadow:2px 3px 7px;
+        }
+        .downBtn:active{
+            box-shadow:0 0 0;
+        }
+    </style>
+</head>
+<body>
+<img src="image/download.png" style="height: 100%;width: 100%;" alt="">
+<div class="downBtn" onclick="download()">下载</div>
+</body>
+
+<script type="text/javascript">
+    function download(){
+        window.location.href = "apk/app-release.apk";
+    }
+</script>
+</html>

@@ -1,0 +1,530 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+
+
+    <title>疯狂外卖</title>
+    <link rel="stylesheet" type="text/css" href="css/demo.css"/>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/vendor/bootstrap.min.css" rel="stylesheet">
+
+    <link href="css/vendor/simple-line-icons.css" rel="stylesheet">
+    <link href="css/vendor/themify-icons.css" rel="stylesheet">
+    <link href="css/vendor/owl.carousel.css" rel="stylesheet">
+    <link href="css/vendor/animate.css" rel="stylesheet">
+    <link href="css/vendor/viewbox.css" rel="stylesheet">
+    <link href="css/vendor/bootstrap-slider.min.css" rel="stylesheet">
+    <link href="css/vendor/bootstrap-datetimepicker.min.css" rel="stylesheet">
+    <script src="js/vendor/fontawesome-all.min.js"></script>
+    <link href="css/scss/main.css" rel="stylesheet">
+    <link href="css/scss/main.css" rel="stylesheet">
+
+
+    <style>body {
+        background-image: linear-gradient(125deg, peachpuff, #D0D8C6, #f0ffff, #ffe4e1);
+        background-size: 800%;
+        animation: linear_background 15s infinite;
+    }
+
+    .load_more {
+        transition: 0.5s;
+    }
+
+    .load_more:hover {
+        background: #1b1e21;
+        color: white;
+    }
+
+    .load_more:active {
+        background: white;
+        color: #1b1e21;
+    }
+
+    @keyframes linear_background {
+        0% {
+            background-position: 0%, 50%;
+        }
+        50% {
+            background-position: 100%, 50%;
+        }
+        100% {
+            background-position: 0%, 50%;
+        }
+    }</style>
+</head>
+
+<body>
+
+
+<nav id="contact-menu" class="navigation navigation-hidden navigation-portrait">
+    <div class="nav-menus-wrapper">
+        <div class="header-info-item clearfix">
+            <p class="header-info-title">联系我们</p>
+            <ul>
+                <li><span class="ti-map-alt"></span> 成都职业技术学院2栋624，邮编NY 10012</li>
+                <li><span class="ti-headphone-alt"></span> <a href="tel:1800-2345-5677">181-2345-5677</a></li>
+                <li><span class="ti-mobile"></span> <a href="tel:1800-2345-5678">181-2345-5678</a></li>
+                <li><span class="ti-email"></span> <a href="mailto:info@voyagetime.com">3263382445@qq.com</a></li>
+            </ul>
+        </div>
+        <div class="header-info-item clearfix">
+            <p class="header-info-title">工作时间</p>
+            <ul>
+                <li><span class="ti-alarm-clock"></span> 工作天上午9时至晚上9时</li>
+                <li><span class="ti-alarm-clock"></span> 星期六上午10时至晚上8时</li>
+                <li><span class="ti-alarm-clock"></span> 星期天放假</li>
+            </ul>
+        </div>
+        <div class="header-info-item clearfix">
+            <p class="header-info-title">关注我们</p>
+            <ul class="header-social">
+                <li><a href="#"><img src="image/QQ2.png"/></a></li>
+                <li><a href="#"><img src="image/微信.png"/></a></li>
+                <li><a href="#"><img src="image/新浪.png"/></a></li>
+                <li><a href="#"><img src="image/动态.png"/></a></li>
+
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<header>
+
+    <div class="main-header">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-5 col-4">
+                </div>
+                <div class="col-md-7 col-8">
+                    <div class="clearfix float-right contact-head">
+                        <a><span class="ti-user"></span></a>
+                        <a href="#" class="login_Btn">登录</a>
+                        <button class="btn-show navbar-toggler float-right btn-contact"><span class="ti-menu"></span>
+                        </button>
+                    </div>
+                    <nav id="navigation" class="navigation mt-10">
+                        <div class="nav-toggle">菜单</div>
+                        <!--搜索-->
+                        <div class="nav-search">
+                            <div class="nav-search-button">
+                                <span class="ti-search"></span>
+                            </div>
+                            <form>
+                                <div class="nav-search-inner">
+                                    <input type="search" name="search" placeholder="Type and hit ENTER"/>
+                                </div>
+                            </form>
+                        </div>
+                        <!--搜索-->
+                        <div class="nav-menus-wrapper">
+
+                            <ul class="nav-menu align-to-right">
+                                <li><a href="#">钱包</a>
+                                    <ul class="nav-dropdown">
+                                        <li><a href="ChargeMoney.html">充值</a></li>
+                                        <li><a>提现</a></li>
+                                        <li><a href="transcation.html">交易记录</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="#">优惠券</a>
+                                    <ul class="nav-dropdown">
+                                        <li><a href="conpon.html">未过期优惠券</a></li>
+                                        <li><a href="conpon.html">过期优惠券</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="#">信息</a>
+                                    <ul class="nav-dropdown">
+                                        <li><a>订单通知</a></li>
+                                        <li><a>退款通知</a></li>
+                                        <li><a>卡券通知</a></li>
+                                        <li><a>系统通知</a></li>
+                                    </ul>
+                                </li>
+                                </li>
+                                <li><a href="#">我的</a>
+                                    <ul class="nav-dropdown">
+                                        <li><a>头像修改</a></li>
+                                        <li><a>密码修改</a></li>
+                                        <li><a>收货地址修改</a></li>
+                                        <li><a>注销</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="#">订单</a>
+                                    <ul class="nav-dropdown">
+                                        <li><a href="ShoppingCart.html">我的订单</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="#">服务</a>
+                                    <ul class="nav-dropdown">
+                                        <li><a>客服服务</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="#">联系</a></li>
+                            </ul>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- / header -->
+
+<div class="search-relative">
+
+    <!-- slider -->
+    <div class="owl-carousel" id="fullscreen-slider">
+        <div class="item height100vh" style="background-image: url(image/slider-1.jpg);">
+            <div class="page-head-wrap">
+                <div class="page-head-inner">
+                    <div class="page-head-caption container text-left">
+                        <div class="container">
+                            <div class="row justify-content-center">
+                                <div class="col-11">
+                                    <p class="animate" data-animation="fadeInLeft" data-timeout="800">Delicious food for
+                                        you</p>
+                                    <h2 class="big-title mb-10 animate" data-animation="fadeInRight" data-timeout="800">
+                                        疯狂外卖</h2>
+                                    <p class="animate mb-20" data-animation="fadeInLeft" data-timeout="800">
+                                        越容易理解的事物，越容易保存于记忆之中；反之，越难理解的事物，越容易忘记。————————斯宾诺莎！</p>
+                                    <a href="#" class="btn btn-4 animate" data-animation="fadeInUp" data-timeout="900">更多</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="item height100vh" style="background-image: url(image/slider-2.jpg);">
+            <div class="page-head-wrap">
+                <div class="page-head-inner">
+                    <div class="page-head-caption container text-right">
+                        <div class="container">
+                            <div class="row justify-content-center">
+                                <div class="col-11">
+                                    <p class="animate" data-animation="bounceIn" data-timeout="900">Crazy moment</p>
+                                    <h2 class="big-title mb-10 animate" data-animation="fadeInDown" data-timeout="800">
+                                        疯狂外卖</h2>
+                                    <p class="animate mb-20" data-animation="fadeInLeft" data-timeout="800">“吃饱了，就不孤单了”
+                                        简单却不失温情，城市很大，心却很空
+                                        远离家乡孩子，吃上一口热乎面
+                                        或许有妈妈的味道……</p>
+                                    <a href="#" class="btn btn-4 animate" data-animation="fadeInUp" data-timeout="900">更多</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="item height100vh" style="background-image: url(image/slider-3.jpg);">
+            <div class="page-head-wrap">
+                <div class="page-head-inner">
+                    <div class="page-head-caption container text-left">
+                        <div class="container">
+                            <div class="row justify-content-center">
+                                <div class="col-11">
+                                    <p class="animate clearfix" data-animation="fadeInUp" data-timeout="1000">Delicious
+                                        food is everywhere</p>
+                                    <h2 class="big-title mb-10 animate" data-animation="fadeInUp" data-timeout="800">
+                                        疯狂外卖</h2>
+                                    <p class="animate mb-20" data-animation="fadeInLeft" data-timeout="800">
+                                        我们来时两手空空，走时也两手空空，没有什么可以失去的。我们只有一点点时间可以玩乐，唱一首美丽的歌，然后生命就到尽头了。每一刻都弥足珍贵！</p>
+                                    <a href="#" class="btn btn-4 animate" data-animation="fadeInUp" data-timeout="1200">更多</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- / slider -->
+
+    <!-- order form -->
+
+    <div class="order-form animate" data-animation="fadeInUp" data-timeout="1000">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-11">
+                    <!-- filter horizontal form -->
+                    <form class="filter-form filter-form-slider mobile-none" method="POST">
+                        <div class="form-row">
+
+                            <div class="form-group col-md-2">
+                                <label class="col-form-label">选择菜品</label>
+                                <select class="form-control custom-select">
+                                    <option>湘菜</option>
+                                    <option>川菜</option>
+                                    <option>小吃</option>
+                                    <option>火锅</option>
+                                    <option>烧烤</option>
+                                    <option>海鲜</option>
+                                    <option>西餐</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-2">
+                                <label class="col-form-label">位置</label>
+                                <select class="form-control custom-select">
+                                    <option>附近</option>
+                                    <option>重庆</option>
+                                    <option>成都</option>
+                                    <option>上海</option>
+                                    <option>杭州</option>
+                                    <option>北京</option>
+                                    <option>福州</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-2">
+                                <label class="col-form-label">配送速度</label>
+                                <select class="form-control custom-select">
+                                    <option>正常</option>
+                                    <option>较快</option>
+                                    <option>速度</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-2">
+                                <label class="col-form-label">您的预算</label>
+                                <select class="form-control custom-select">
+                                    <option>全部</option>
+                                    <option>50￥</option>
+                                    <option>100￥</option>
+                                    <option>200￥</option>
+                                    <option>500￥</option>
+                                    <option>1000￥</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-2">
+                                <a href="">
+                                    <button id="fat-btn" class="btn btn-primary" type="button"
+                                            style="background-color:#FDE409;color:#000000;margin-top:35px;width:100px;margin-left:20px;">
+                                        查找
+                                    </button>
+                                </a>
+                            </div>
+
+
+                        </div>
+                    </form>
+                    <!-- / filter horizontal form -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- / order form -->
+
+</div> <!-- / search-relative -->
+
+
+<!-- BLOCK popular -->
+
+<div class="main-block">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="text-center block width100 mb-50 block-title">
+                    <h2>疯狂外卖</h2>
+                    <div class="separator"><span>Bring delicious food to every guest!</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row menuList">
+
+
+        </div>
+        <div class="load_more"
+             style="height: 50px;width: 100px;border-radius: 20px;border: 1px solid #222222;margin-top: -300px;position: absolute;text-align: center;line-height: 50px;left: 45%;cursor: pointer"
+             onclick="getMenus()">查看更多
+        </div>
+    </div>
+
+</div>
+
+
+<!-- BLOCK / news -->
+
+<footer class="dark-footer" style="background-image: url(image/image-20.jpg); margin-top:-250px;">
+    <div class="main-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="footer-item">
+                        <div class="mt-20 mb-20">
+                            <button type="button" class="btn btn-1 btn-sm" data-toggle="modal"
+                                    data-target="#newsletterModal">
+                                分享
+                            </button>
+
+                        </div>
+
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="footer-item">
+                        <ul class="footer-menu">
+                            <li><a href="#">主页</a></li>
+                            <li><a href="#">关于我们</a></li>
+                            <li><a href="#">系列</a></li>
+                            <li><a href="#">网志</a></li>
+                            <li><a href="#">联系</a></li>
+                        </ul>
+                        <p class="mt-30">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;美食让人的味蕾得到满足和享受，这种满足能够却能悄悄转换成为一种前行的动力，让我们有足够的底气去付出更多的努力，踏实迈出每一步，好运就会伴随左右！留意途中的人和事还有那些美好的记忆和景色！</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="footer-item">
+                        <ul class="mb-20">
+                            <li>1800-2345-5677</li>
+                            <li class="mt-10"><a href="mailto:">3263382774@qq.com</a></li>
+                            <li class="mt-10">Two thousand six hundred and twenty-four Login account</li>
+                        </ul>
+
+                    </div>
+
+                    <div class="footer-item">
+                        <ul class="footer-social mt-20">
+
+                            <li><a href="#"><img src="image/QQ2.png"/></a></li>
+                            <li><a href="#"><img src="image/微信.png"/></a></li>
+                            <li><a href="#"><img src="image/新浪.png"/></a></li>
+                            <li><a href="#"><img src="image/动态.png"/></a></li>
+
+                        </ul>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- SCROLL UP -->
+<a class="scrollup">
+    <i class="icon-arrow-up icons"></i>
+</a>
+<!-- / SCROLL UP -->
+
+
+<!-- JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="js/vendor/jquery.min.js"></script>
+<script src="js/vendor/moment.js"></script>
+<script src="js/vendor/bootstrap.min.js"></script>
+<script src="js/vendor/bootstrap-slider.min.js"></script>
+<script src="js/vendor/bootstrap-datetimepicker.min.js"></script>
+<script src="js/vendor/owl.carousel.min.js"></script>
+<script src="js/vendor/navigation.js"></script>
+<script src="js/vendor/modernizr.js"></script>
+<script src="js/vendor/jqueryvalidation.js"></script>
+<script src="js/vendor/jquery.viewbox.min.js"></script>
+<script src="js/vendor/masonry.min.js"></script>
+<script src="js/vendor/imagesloaded.js"></script>
+<script src="js/vendor/jquery.waypoints.min.js"></script>
+<script src="js/vendor/jquery.sticky-kit.min.js"></script>
+<script src="js/main.js"></script>
+<script src="js/jquery-1.11.0.min.js" type="text/javascript" charset="utf-8"></script>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet"/>
+<script src="js/fun/jquery.js"></script>
+<script src="js/fun/jquery.cookie.js"></script>
+<script src="js/fun/ajax.js"></script>
+<script src="js/fun/base64.js"></script>
+<script src="js/fun/code.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+        if ($.cookie("jwt") === "null") {
+            //未登录
+            window.location.href = "denglu1-jie.html";
+        } else {
+            //已登录
+            console.log($.cookie("jwt"));
+            setPageData();
+            getMenus();
+        }
+    })
+
+    function setPageData() {
+        let loginBtn = $('.login_Btn');
+        let user = eval('(' + $.cookie('user') + ')');
+        console.log(user);
+        loginBtn.text(user.usernickname);
+    }
+
+    let size = 0;
+
+    function getMenus() {
+
+        get("G/shops?size=" + size, success);
+    }
+
+    function success(code, msg, data) {
+        if (code === 10000) {
+            let menuList = $(".menuList");
+            size = Number(size) + Number(data.length)
+            if (data.length == 0) {
+                toastr.warning("没有更多了");
+                return;
+            }
+            console.log(data);
+            for (let i = 0; i < data.length; i++) {
+                let menu = JSON.stringify(data[i]).replace(/"/g, '&quot;');
+                console.log("解析menu");
+                console.log(menu);
+                let wrapper;
+                if (i < 2) {
+                    wrapper = '<div class="col-md-4 col-lg-6"><div class="wrap" class="tour-item"><ul><li> ' +
+                        '<div href="" class="a1"><img src="' + data[i].menu.foodimg + '" alt=""><div class="divA"> <p class="p1">' + data[i].suser.shopname + '</p> <p class="p2">' + data[i].suser.dscr + '</p><p class="p3">¥<span>' + data[i].menu.foodprice + '</span>起</p></div> </div>' +
+                        '<div href="" class="a2"><p class="p4">' + data[i].suser.shopname + '</p><p class="p5">' + data[i].suser.dscr + '</p><p class="p6">¥<span>' + data[i].menu.foodprice + '</span>元起</p><p class="p7" onclick="toMenu(' + menu + ')">查看详情></p></div>' +
+                        '</li></ul></div></div>'
+                } else {
+                    wrapper = '<div class="col-md-4 col-lg-6"><div class="wrap" class="tour-item" style="margin-top: -330px;"><ul><li> ' +
+                        '<div href="" class="a1"><img src="' + data[i].menu.foodimg + '" alt=""><div class="divA"> <p class="p1">' + data[i].suser.shopname + '</p> <p class="p2">' + data[i].suser.dscr + '</p><p class="p3">¥<span>' + data[i].menu.foodprice + '</span>起</p></div> </div>' +
+                        '<div href="" class="a2"><p class="p4">' + data[i].suser.shopname + '</p><p class="p5">' + data[i].suser.dscr + '</p><p class="p6">¥<span>' + data[i].menu.foodprice + '</span>元起</p><p class="p7" onclick="toMenu(' + menu + ')">查看详情></p></div>' +
+                        '</li></ul></div></div>'
+                }
+                menuList.append(wrapper);
+            }
+            $('li').mouseenter(function () {
+                $(this).find('.divA').stop().animate({bottom: '-66px'});
+                $(this).find('.a2').css({left: '0'})
+                $(this).children('.a2').find('.p4').css({left: '0'})
+                $(this).children('.a2').find('.p5').css({left: '0'})
+                $(this).children('.a2').find('.p6').css({transform: 'scale(1)'})
+                $(this).children('.a2').find('.p7').css({bottom: '25px'})
+            })
+            $('li').mouseleave(function () {
+                $(this).find('.divA').stop().animate({bottom: '0px'});
+                $(this).find('.a2').css({left: -$(this).width()})
+                $(this).children('.a2').find('.p4').css({left: -$(this).width()})
+                $(this).children('.a2').find('.p5').css({left: -$(this).width()})
+                $(this).children('.a2').find('.p6').css({transform: 'scale(1.3)'})
+                $(this).children('.a2').find('.p7').css({bottom: '-50px'})
+            })
+        } else {
+            toastr.warning(msg);
+        }
+    }
+
+
+    function toMenu(menu) {
+        console.log(menu);
+        let data = JSON.stringify(menu);
+        let dataBase64 = BASE64.encode(data);
+        console.log(dataBase64)
+
+        window.location.href = "Commodity_details.html?data=" + dataBase64;
+    }
+</script>
+
+
+</body>
+</body>
+</html>
